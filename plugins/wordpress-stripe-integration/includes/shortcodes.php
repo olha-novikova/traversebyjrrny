@@ -108,7 +108,7 @@ function base_stripe_cashout_form() {
                             <input type="text" name="address_city" placeholder="Address city" >
                         </div>
                         <div class="form-row form-row-last">
-                            <div class="styled-select slate" style="display: inline-block;">
+                            <div class="styled-select whild" style="display: inline-block;">
                                 <select name="address_country">
                                     <option>Address country</option>
                                     <option value="US">US</option>
@@ -149,7 +149,7 @@ function base_stripe_cashout_form() {
                                 <h4 class="title">Credit Card Details</h4>
                             </div>
                             <div class="form-row">
-                                <input type="text" placeholder="Card Number" autocomplete="off" class="card-number" value="4000056655665556">
+                                <input type="text" placeholder="Card Number" autocomplete="off" class="card-number" value="">
                             </div>
 
                             <div class="date-field form-row form-row-first">
@@ -183,7 +183,7 @@ function base_stripe_cashout_form() {
 
                             <div class="card-verification form-row form-row-last">
                                 <div class="cvv-input">
-                                    <input type="text" size="4" placeholder="CVV" autocomplete="off" class="card-cvc" value="123">
+                                    <input type="text" size="4" placeholder="CVV" autocomplete="off" class="card-cvc" value="">
                                 </div>
                             </div>
                             <div class="clear"></div>
