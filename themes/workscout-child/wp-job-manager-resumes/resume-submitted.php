@@ -2,7 +2,12 @@
 switch ( $resume->post_status ) :
 	case 'publish' :
 		if ( resume_manager_user_can_view_resume( $resume->ID ) ) {
-			printf( '<p class="resume-submitted">' . __( 'Your portfolio has been submitted successfully. To view your portfolio <a href="%s">click here</a>.', 'wp-job-manager-resumes' ) . '</p>', get_permalink( $resume->ID ) );
+			printf( '<h1 class="resume-submitted">' . __( 'You&#39;re all set to look for opportunities!</h1><br />
+<h3>Click <a href="http://traverseinfluence.com/influencer-php/">here</a> to look at what&#39;s available right now.  
+<br />You&#39;ll also get regular notifications about new opportunities being posted.
+<br />
+<br />
+<a href="http://traverseinfluence.com/influencer-php/"><button>TAKE ME TO BROWSE OPPORTUNITIES</button></a>', 'wp-job-manager-resumes' ) . '</h3>', get_permalink( $resume->ID ) );
 		} else {
 			print( '<p class="resume-submitted">' . __( 'Your portfolio has been submitted successfully.', 'wp-job-manager-resumes' ) . '</p>' );
 		}

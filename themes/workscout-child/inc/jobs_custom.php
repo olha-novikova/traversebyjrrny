@@ -7,6 +7,7 @@
 */
 
 function jobs_custom( $atts ) {
+
     ob_start();
     wp_enqueue_script( 'workscout-wp-job-manager-ajax-filters' );
     extract( $atts = shortcode_atts( apply_filters( 'job_manager_output_jobs_defaults', array(

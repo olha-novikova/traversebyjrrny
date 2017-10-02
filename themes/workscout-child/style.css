@@ -15,7 +15,10 @@ Template:  workscout
 
 
 /******* Overriding parent style******/
-body{ position: relative;}
+/* Open Sans */
+
+body{ position: relative;  font-family: "Open Sans", sans-serif;}
+h1, h2, h3, h4, h5, h6 {  font-family: Dosis,"Open Sans", sans-serif;}
 .woocommerce #content div.product div.summary, .woocommerce div.product div.summary, .woocommerce-page #content div.product div.summary, .woocommerce-page div.product div.summary { float: left !important; width: 100% !important;}
 .menu ul { margin: 0;}
 #titlebar.single, #titlebar { display: none}
@@ -44,10 +47,15 @@ header #navigation{float:right}
 #footer .one-third #menu-footermenu2 li{float:left;}
 #footer .one-third #menu-footermenu2 li a{padding-right:15px}
 .introtext{text-align:center;color:#fff; width: 50%; padding: 250px 0 200px;    background: rgba(29, 180, 239, 0.77);}
-.how-it-work-wrap{text-align:center;color:#fff;padding:150px 0}
+.how-it-work-wrap{text-align:center;color:#fff;padding:150px 50px; background: rgba(29, 180, 239, 0.77) none repeat scroll 0 0;}
+.how-it-work-wrap .cxs{margin-bottom: 50px}
 .how-it-work-wrap.introtext{width: 80%; display: inline-block;}
-.how-it-work-content{max-width:640px;margin:0 auto; text-align: left;}
-.how-it-work-content a.button{  background-color: #282828;   border-radius: 8px;  font-size: 16px;  padding: 4px 15px; box-shadow: none}
+.how-it-work-content{width:50%;margin:0 auto; text-align: left; float: left; box-sizing: border-box}
+.how-it-work h2 {color: #fff;    font-size: 46px;    letter-spacing: -1px;    margin-bottom: 20px;}
+.how-it-work h3 {color: #fff;    font-size: 32px;    letter-spacing: -1px;    margin-bottom: 20px;}
+@media (max-width: 1200px) { .how-it-work-content{  float: none; width:100%;} }
+@media (max-width: 1020px) { .introtext{  float: none; width:100%;} }
+.how-it-work a.button{  background-color: #282828;   border-radius: 8px;  font-size: 16px;  padding: 4px 15px; box-shadow: none}
 .introtext h2{font-size: 46px;color: #fff;letter-spacing: -1px;margin-bottom:20px}
 .how-it-work-content p{margin-bottom:35px;text-transform:uppercase;font-size:14px}
 .jrrny{font-size: 23px;color:#fff;}
@@ -692,6 +700,7 @@ i.fa.fa-jrrny{
 .social_job_listing_add .wpb_content_element{margin-bottom: 0;}
 h6.resume_ask{text-transform: capitalize;     font-size: 20px;}
 .resumes-content span.icons{padding: 10px 20px;}
+#titlebar .resumes-content span.resume-category{ background: #05a4e6; color: #fff; padding: 0 5px; border-radius: 3px}
 .resume_preview.single-resume .container strong{display: inline-block !important;}
 .resume_preview.single-resume .container a{margin-right: 10px;}
 a.view_jobs{background-color: #f2f2f2;    padding: 10px 20px;    line-height: 27px;    color: #808080;}
@@ -718,4 +727,19 @@ a.view_jobs{background-color: #f2f2f2;    padding: 10px 20px;    line-height: 27
 }
 @media (max-width: 992px){
     .container .woocommerce-account .woocommerce-MyAccount-content {    width: 100%;}
+}
+.fieldset-sync_social .field  { display: table; }
+.fieldset-sync_social .field input[type="checkbox"]{ display: table-footer-group;  margin: 20px 10px 0 0; }
+.fieldset-sync_social .field .instead-lable{ padding: 0 5px }
+.fieldset-sync_social .field .description{ display: table-header-group; }
+input.sync, textarea.sync{ color: green;}
+.company-info img {  width: auto;}
+.woocommerce  .influ-photo img{
+    height: auto;
+    max-width: 50%;
+    margin: 20px auto;
+}
+.woocommerce img.company_logo, .woocommerce-page img.company_logo{
+    max-width: 100px;
+    height: auto;
 }

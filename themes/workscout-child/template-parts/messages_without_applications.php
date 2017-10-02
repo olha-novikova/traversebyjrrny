@@ -14,8 +14,7 @@ if ( user_has_messages_without_application($current_user)){
     <?php
 
     $probably_applications = get_jobs_with_messages_without_application($current_user);
-echo "<pre>";
-    print_r($probably_applications);echo "</pre>";
+
     foreach ( $probably_applications as $job_id => $job ){
         foreach ( $job as $resume_id => $resume ){
         ?>

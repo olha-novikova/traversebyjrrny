@@ -1,4 +1,5 @@
 <?php 
+
 add_action( 'wp_enqueue_scripts', 'workscout_enqueue_styles' );
 function workscout_enqueue_styles() {
     wp_enqueue_style( 'parent-style', get_template_directory_uri() . '/style.css',array('workscout-base','workscout-responsive','workscout-font-awesome') );
@@ -39,23 +40,24 @@ add_action( 'wp_enqueue_scripts', 'workscout_child_scripts' );
 
 function overwrite_shortcode() {
     include_once get_stylesheet_directory() . '/inc/spotlight_jobs_custom.php';
+    include_once get_stylesheet_directory() . '/inc/spotlight_resumes_custom.php';
     include_once get_stylesheet_directory() . '/inc/jobs_custom.php';
 
     remove_shortcode('spotlight_jobs');
+    remove_shortcode('spotlight_resumes');
     remove_shortcode('jobs');
 
     add_shortcode( 'spotlight_jobs', 'spotlight_jobs_custom' );
+    add_shortcode( 'spotlight_resumes', 'spotlight_resumes_custom' );
     add_shortcode( 'jobs', 'jobs_custom' );
 }
 
 add_action( 'wp_loaded', 'overwrite_shortcode' );
 
-
 //remove_action( 'woocommerce_before_checkout_form', 'woocommerce_checkout_coupon_form', 10 );
 
 function remove_parent_theme_features() {
     remove_filter( 'woocommerce_login_redirect', 'wc_custom_user_redirect', 10, 2 );
-    remove_action( 'template_redirect', array( 'WC_Form_Handler', 'save_account_details' ) );
     remove_action( 'wp_loaded', array( 'WP_Job_Manager_Applications_Dashboard', 'edit_handler' ) );
 
 }
@@ -75,6 +77,22 @@ add_action( 'after_setup_theme', 'workscout_child_setup' );
 
 remove_action( 'woocommerce_edit_account_form', 'my_woocommerce_edit_account_form' );
 
+function get_the_resume_categories( $post = null ) {
+    $post = get_post( $post );
+    if ( $post->post_type !== 'resume' )
+        return '';
+
+    if ( ! get_option( 'resume_manager_enable_categories' ) )
+        return '';
+
+    $categories = wp_get_object_terms( $post->ID, 'resume_category', array( 'fields' => 'names' ) );
+
+    if ( is_wp_error( $categories ) ) {
+        return '';
+    }
+
+    return $categories;
+}
 
 add_action( 'wp_loaded',  'application_edit_handler'  );
 
@@ -170,7 +188,7 @@ function my_woocommerce_edit_account_form_child() {
 
         <fieldset>
             <p class="form-row form-row-thirds">
-                <label for="number">PHONE NUMBER</label>
+                <label for="number">YOUR PHONE NUMBER</label>
                 <input type="text" name="phone_number" value="<?php echo esc_attr( $number ); ?>" class="input-text" />
             </p>
         </fieldset>
@@ -178,85 +196,18 @@ function my_woocommerce_edit_account_form_child() {
         <fieldset>
             <p class="form-row form-row-thirds">
                 <label for="shortbio">SHORT BIO</label>
-                <textarea type="textfield" name="shortbio" class="input-text" /><?php echo esc_attr( $shortbio ); ?></textarea>
+                <textarea type="textfield" placeholder="Tell us about yourself, your audience, and any other information that might be valuable to the brands looking at your profile!" name="shortbio" class="input-text" /><?php echo esc_attr( $shortbio ); ?></textarea>
             </p>
         </fieldset>
 
-        <fieldset>
+        <fieldset class="influ-photo">
             <p class="form-row form-row-thirds">
                 <?php if($logo) {
                     $dir = wp_get_upload_dir();?>
                     <img class="img-responsive" src="<?php echo $dir['baseurl'].'/users/'.$logo; ?>" />
                 <?php } ?>
-                <label for="logo">PHOTO</label>
+                <label for="logo">YOUR PROFILE PHOTO</label>
                 <input type="file" name="logo" value="<?php echo esc_attr( $logo ); ?>" class="input-text" />
-            </p>
-        </fieldset>
-
-        <fieldset>
-            <p class="form-row form-row-thirds">
-                <label for="website">WEBSITE</label>
-                <input type="text" name="website" value="<?php echo esc_attr( $website ); ?>" class="input-text" />
-            </p>
-        </fieldset>
-
-        <fieldset>
-            <p class="form-row form-row-thirds">
-                <label for="monthlyvisit">ESTIMATED MONTHLY VISIT</label>
-                <input type="text" name="monthlyvisit" value="<?php echo esc_attr( $monthlyvisit ); ?>" class="input-text" />
-            </p>
-        </fieldset>
-
-
-        <fieldset>
-            <p class="form-row form-row-thirds">
-                <label for="insta">INSTAGRAM
-                <input type="text" name="insta" id = "instagram_link" value="<?php echo esc_attr( $insta ); ?>" class="input-text" />
-                </label>
-            </p>
-        </fieldset>
-
-        <fieldset>
-            <p class="form-row form-row-thirds">
-                <label for="fb">FACEBOOK</label>
-                <input type="text" name="fb" id = "fb_link" value="<?php echo esc_attr( $fb ); ?>" class="input-text" />
-            </p>
-        </fieldset>
-
-        <fieldset>
-            <p class="form-row form-row-thirds">
-                <label for="birthdate">TWITTER
-                <input type="text" name="twitter"  id ="twitter_link" value="<?php echo esc_attr($twitter); ?>" class="input-text" />
-                </label>
-            </p>
-        </fieldset>
-
-
-        <fieldset>
-            <p class="form-row form-row-thirds">
-                <label for="youtube">YOUTUBE
-                    <input type="text" name="youtube" id = "youtube_link" value="<?php echo esc_attr( $youtube ); ?>" class="input-text" />
-                </label>
-            </p>
-        </fieldset>
-
-        <fieldset>
-            <p class="form-row form-row-thirds">
-                <label for="youtube">JRRNY.COM <?php if (!$jrrny_link_own && $jrrny_link_auto) echo "(account was created automatically, you can use your own if you have)";?>
-                    <input type="text" name="jrrny_link" id = "jrrny_link" value="<?php echo esc_attr( $jrrny_link_own ? $jrrny_link_own: $jrrny_link_auto); ?>" class="input-text" />
-                </label>
-            </p>
-        </fieldset>
-
-        <fieldset>
-            <p class="form-row form-row-thirds">
-                <label for="newsletter">DO YOU HAVE A NEWSLETTER?</label>
-                <input type="radio" name="newsletter" value="yes" <?php if ($newsletter == 'yes') echo 'checked = "checked"';?>> YES
-                <input type="radio" name="newsletter" value="no" <?php if ($newsletter == 'no') echo 'checked = "checked"';?>> NO
-            </p>
-            <p class="form-row form-row-thirds newsletter_conditional <?php if ($newsletter != 'yes') echo 'hide';?>" >
-                <label for="newsletter_subscriber">IF YES, HOW MANY SUBSCRIBERS?</label>
-                <input type="text" name="newsletter_subscriber" value="<?php echo esc_attr( $newsletter_subscriber_count ); ?>" class="input-text" />
             </p>
         </fieldset>
 
@@ -267,7 +218,7 @@ function my_woocommerce_edit_account_form_child() {
         <?php wp_enqueue_script( 'wp-job-manager-multiselect' ); ?>
         <fieldset>
             <p class="form-row form-row-thirds">
-                <label for="birthdate">TARGET AUDIENCE</label>
+                <label for="traveler_type">SELECT YOUR AREAS OF EXPERTISE</label>
                 <select name="traveler_type[]" class="job-manager-multiselect" multiple="multiple" data-no_results_text="<?php _e( 'No results match', 'wp-job-manager' ); ?>" data-multiple_text="<?php _e( 'Select Some Options', 'wp-job-manager' ); ?>">
                     <?php
                     foreach ($sql as $result){ ?>
@@ -280,8 +231,77 @@ function my_woocommerce_edit_account_form_child() {
 
         <fieldset>
             <p class="form-row form-row-thirds">
-                <label for="location">LOCATIONS YOU HAVE ACCESS TO</label>
-                <input type="text" name="location" value="<?php echo esc_attr( $location ); ?>" class="input-text" />
+                <label for="location">LOCATIONS YOU KNOW BEST</label>
+                <input type="text" placeholder="Example: Seattle, Mongolia, etc." name="location" value="<?php echo esc_attr( $location ); ?>" class="input-text" />
+            </p>
+        </fieldset>
+        <h2> SOCIAL MEDIA INFORMATION </h2>
+
+        <fieldset>
+            <p class="form-row form-row-thirds">
+                <label for="insta">YOUR INSTAGRAM URL
+                <input type="text" placeholder="http://www.instagram.com/yourprofile" name="insta" id = "instagram_link" value="<?php echo esc_attr( $insta ); ?>" class="input-text" />
+                </label>
+            </p>
+        </fieldset>
+
+        <fieldset>
+            <p class="form-row form-row-thirds">
+                <label for="fb">YOUR FACEBOOK URL</label>
+                <input type="text" placeholder="http://www.facebook.com/yourprofile" name="fb" id = "fb_link" value="<?php echo esc_attr( $fb ); ?>" class="input-text" />
+            </p>
+        </fieldset>
+
+        <fieldset>
+            <p class="form-row form-row-thirds">
+                <label for="birthdate">YOUR TWITTER URL
+                <input type="text" placeholder="http://www.twitter.com/yourprofile" name="twitter"  id ="twitter_link" value="<?php echo esc_attr($twitter); ?>" class="input-text" />
+                </label>
+            </p>
+        </fieldset>
+
+
+        <fieldset>
+            <p class="form-row form-row-thirds">
+                <label for="youtube">YOUR YOUTUBE URL
+                    <input type="text" placeholder="http://www.youtube.com/yourchannel" name="youtube" id = "youtube_link" value="<?php echo esc_attr( $youtube ); ?>" class="input-text" />
+                </label>
+            </p>
+        </fieldset>
+
+        <fieldset>
+            <p class="form-row form-row-thirds">
+                <label for="youtube">YOUR JRRNY.COM PROFILE <?php if (!$jrrny_link_own && $jrrny_link_auto) echo "(A new JRRNY account was created automatically, but you can use your own if you have one.)";?>
+                    <input type="text" name="jrrny_link" id = "jrrny_link" value="<?php echo esc_attr( $jrrny_link_own ? $jrrny_link_own: $jrrny_link_auto); ?>" class="input-text" />
+                </label>
+            </p>
+        </fieldset>
+
+        <h2> WEBSITE INFORMATION </h2> <h5>(WEBSITE IS OPTIONAL)</h5>
+
+        <fieldset>
+            <p class="form-row form-row-thirds">
+                <label for="website">YOUR WEBSITE URL</label>
+                <input type="text" placeholder="http://www.example.com" name="website" value="<?php echo esc_attr( $website ); ?>" class="input-text" />
+            </p>
+        </fieldset>
+
+        <fieldset>
+            <p class="form-row form-row-thirds">
+                <label for="monthlyvisit">YOUR WEBSITE'S ESTIMATED NUMBER OF MONTHLY VISITS</label>
+                <input type="text" placeholder="Example: 25,000 Monthly Vists"name="monthlyvisit" value="<?php echo esc_attr( $monthlyvisit ); ?>" class="input-text" />
+            </p>
+        </fieldset>
+
+        <fieldset>
+            <p class="form-row form-row-thirds">
+                <label for="newsletter">DOES YOUR WEBSITE HAVE A NEWSLETTER?</label>
+                <input type="radio" name="newsletter" value="yes" <?php if ($newsletter == 'yes') echo 'checked = "checked"';?>> YES
+                <input type="radio" name="newsletter" value="no" <?php if ($newsletter == 'no') echo 'checked = "checked"';?>> NO
+            </p>
+            <p class="form-row form-row-thirds newsletter_conditional <?php if ($newsletter != 'yes') echo 'hide';?>" >
+                <label for="newsletter_subscriber">IF YES, HOW MANY SUBSCRIBERS?</label>
+                <input type="text" name="newsletter_subscriber" value="<?php echo esc_attr( $newsletter_subscriber_count ); ?>" class="input-text" />
             </p>
         </fieldset>
 
@@ -493,7 +513,7 @@ function my_woocommerce_edit_account_form_child() {
         <?php wp_enqueue_script( 'wp-job-manager-multiselect' ); ?>
         <fieldset>
             <p class="form-row form-row-thirds">
-                <label for="birthdate">TARGET AUDIENCE</label>
+                <label for="traveler_type">TARGET AUDIENCE</label>
                 <select name="traveler_type[]" class="job-manager-multiselect" multiple="multiple" data-no_results_text="<?php _e( 'No results match', 'wp-job-manager' ); ?>" data-multiple_text="<?php _e( 'Select Some Options', 'wp-job-manager' ); ?>">
                     <?php
                     foreach ($sql as $result){ ?>
@@ -603,10 +623,39 @@ function my_woocommerce_edit_account_form_child() {
 
 
 remove_action( 'woocommerce_save_account_details', 'my_woocommerce_save_account_details' );
+
 add_action( 'woocommerce_save_account_details', 'my_woocommerce_save_account_details_child' );
+add_action( 'woocommerce_save_account_details_errors','wooc_validate_custom_field', 10, 1 );
+
+
+function wooc_validate_custom_field( $args )
+{
+    if(isset($_FILES['logo']['name']) && !empty($_FILES['logo']['name'])){
+        $errors= array();
+        $file_name = $_FILES['logo']['name'];
+        $file_size =$_FILES['logo']['size'];
+        $file_tmp =$_FILES['logo']['tmp_name'];
+        $file_type=$_FILES['logo']['type'];
+        $file_ext=strtolower(end(explode('.',$_FILES['logo']['name'])));
+
+        $expensions= array("jpeg","jpg","png","gif");
+
+        if(in_array($file_ext,$expensions)=== false){
+            $args->add( 'error', __( 'extension not allowed, please choose a JPEG or PNG file.', 'woocommerce' ),'');
+
+        }
+
+        if($file_size > 2097152){
+            $args->add( 'error', __( 'File size should not be more then 2 MB', 'woocommerce' ),'');
+
+        }
+
+    }
+}
 
 function my_woocommerce_save_account_details_child( $user_id ) {
     $str = get_userdata($user_id);
+    $errors = false;
 
     if($str->roles[0] == "candidate")
     {
@@ -616,27 +665,30 @@ function my_woocommerce_save_account_details_child( $user_id ) {
             $file_size =$_FILES['logo']['size'];
             $file_tmp =$_FILES['logo']['tmp_name'];
             $file_type=$_FILES['logo']['type'];
+            $pi = pathinfo($file_name);
+            $ext = $pi['extension'];
+
             $file_ext=strtolower(end(explode('.',$_FILES['logo']['name'])));
+            $new_name = $str->user_login."_".time().".".$ext;
 
             $expensions= array("jpeg","jpg","png","gif");
 
             if(in_array($file_ext,$expensions)=== false){
-                $errors[]=$file_ext." extension not allowed, please choose a JPEG or PNG file.";
+                $errors = true;;
             }
 
             if($file_size > 2097152){
-                $errors[]='File size must be excately 2 MB';
+                $errors = true;;
             }
 
-            if(empty($errors)==true){
+            if( !$errors ){
                 $dir = wp_get_upload_dir();
-                move_uploaded_file($file_tmp, $dir['basedir']."/users/".$file_name);
-                update_user_meta( $user_id, 'photo', htmlentities( $_FILES['logo']['name'] ) );
-                echo "Success";
-            }else{
-                print_r($errors);
+                if (move_uploaded_file($file_tmp, $dir['basedir']."/users/".$new_name)){
+                    update_user_meta( $user_id, 'photo', $new_name );
+                }
             }
         }
+
         update_user_meta( $user_id, 'website', htmlentities( $_POST[ 'website' ] ) );
         update_user_meta( $user_id, 'jrrny_link', htmlentities( $_POST[ 'jrrny_link' ] ) );
         update_user_meta( $user_id, 'monthlyvisit', htmlentities( $_POST[ 'monthlyvisit' ] ) );
@@ -652,67 +704,42 @@ function my_woocommerce_save_account_details_child( $user_id ) {
         update_user_meta( $user_id, 'phone_number', htmlentities( $_POST[ 'phone_number' ] ) );
 
 
-        $query_args = array(
-            'post_type'     => 'resume',
-            'fields'     => 'ids',
-            'posts_per_page' => -1,
-            'post_status'  => 'any',
-            'author'     => intval($user_id)
-        );
-
-      /*  $resume_data = new WP_Query( $query_args);
-
-        if ($resume_data->have_posts()):
-            foreach( $resume_data->posts as $id ):
-                echo $id.'<br>';
-                update_post_meta( $id, '_influencer_number', htmlentities( $_POST[ 'phone_number' ] ) );
-                update_post_meta( $id, '_influencer_website', htmlentities( $_POST[ 'website' ] ) );
-                update_post_meta( $id, '_estimated_monthly_visitors', htmlentities( $_POST[ 'monthlyvisit' ] ) );
-                update_post_meta( $id, '_instagram_link', htmlentities( $_POST[ 'insta' ] ) );
-                update_post_meta( $id, '_facebook_link', htmlentities( $_POST[ 'fb' ] ) );
-                update_post_meta( $id, '_twitter_link', htmlentities( $_POST[ 'twitter' ] ) );
-                update_post_meta( $id, '_youtube_link', htmlentities( $_POST[ 'youtube' ] ) );
-                update_post_meta( $id, '_newsletter', htmlentities( $_POST[ 'newsletter' ] ) );
-                update_post_meta( $id, '_short_influencer_bio', htmlentities( $_POST[ 'shortbio'] ) );
-                update_post_meta( $id, '_candidate_photo', htmlentities( $_FILES['logo']['name'] ) );
-            endforeach;
-        endif;*/
     }
 
     if($str->roles[0] == "employer") {
 
-//job_listing
         if(isset($_FILES['logo']['name']) && !empty($_FILES['logo']['name'])){
             $errors= array();
             $file_name = $_FILES['logo']['name'];
             $file_size =$_FILES['logo']['size'];
             $file_tmp =$_FILES['logo']['tmp_name'];
             $file_type=$_FILES['logo']['type'];
-            $file_ext=strtolower(end(explode('.',$_FILES['logo']['name'])));
+            $pi = pathinfo($file_name);
+            $ext = $pi['extension'];
 
-            $expensions= array("jpeg","jpg","png");
+            $file_ext=strtolower(end(explode('.',$_FILES['logo']['name'])));
+            $new_name = $str->user_login."_".time().".".$ext;
+
+            $expensions= array("jpeg","jpg","png","gif");
 
             if(in_array($file_ext,$expensions)=== false){
-                $errors[]="extension not allowed, please choose a JPEG or PNG file.";
+                $errors = true;;
             }
 
             if($file_size > 2097152){
-                $errors[]='File size must be excately 2 MB';
-            }
-            if(empty($errors)==true){
-                $dir = wp_get_upload_dir();
-                move_uploaded_file($file_tmp, $dir['basedir']."/users/".$file_name);
-                update_user_meta( $user_id, 'logo', htmlentities( $_FILES['logo']['name'] ) );
-                echo "Success";
-            }else{
-                print_r($errors);
+                $errors = true;;
             }
 
+            if( !$errors ){
+                $dir = wp_get_upload_dir();
+                if (move_uploaded_file($file_tmp, $dir['basedir']."/users/".$new_name)){
+                    update_user_meta( $user_id, 'logo', $new_name);
+                }
+            }
         }
 
         update_user_meta( $user_id, 'number', htmlentities( $_POST[ 'number' ] ) );
         update_user_meta( $user_id, 'company_name', htmlentities( $_POST[ 'company_name' ] ) );
-
         update_user_meta( $user_id, 'website', htmlentities( $_POST[ 'website' ] ) );
         update_user_meta( $user_id, 'contactname', htmlentities( $_POST[ 'contactname' ] ) );
         update_user_meta( $user_id, 'insta', htmlentities( $_POST[ 'insta' ] ) );
@@ -724,29 +751,8 @@ function my_woocommerce_save_account_details_child( $user_id ) {
         update_user_meta( $user_id, 'shortbio', htmlentities( $_POST[ 'shortbio'] ) );
         update_user_meta( $user_id, 'traveler_type',  $_POST['traveler_type' ] );
 
-    /*    $query_args = array(
-            'post_type'     => 'job_listing',
-            'fields'     => 'ids',
-            'posts_per_page' => -1,
-            'post_status'  => 'any',
-            'author'     => intval($user_id)
-        );
-
-        $job_listing_data = new WP_Query( $query_args);
-
-        if ($job_listing_data->have_posts()):
-            foreach( $job_listing_data->posts as $id ):
-                echo $id.'<br>';
-                update_post_meta( $id, '_company_name', htmlentities( $_POST[ 'company_name' ] ) );
-                update_post_meta( $id, '_company_website', htmlentities( $_POST[ 'website' ] ) );
-                update_post_meta( $id, '_company_tagline ', htmlentities( $_POST[ 'shortbio'] ) );
-                update_post_meta( $id, '_company_logo ', htmlentities( $_FILES['logo']['name'] ) );
-            endforeach;
-        endif;
-
-        wp_reset_postdata();*/
-
     }
+
     if($str->roles[0] == "administrator") {
 
         if(isset($_FILES['logo']['name']) && !empty($_FILES['logo']['name'])){
@@ -755,163 +761,217 @@ function my_woocommerce_save_account_details_child( $user_id ) {
             $file_size =$_FILES['logo']['size'];
             $file_tmp =$_FILES['logo']['tmp_name'];
             $file_type=$_FILES['logo']['type'];
-            $file_ext=strtolower(end(explode('.',$_FILES['logo']['name'])));
+            $pi = pathinfo($file_name);
+            $ext = $pi['extension'];
 
-            $expensions= array("jpeg","jpg","png");
+            $file_ext=strtolower(end(explode('.',$_FILES['logo']['name'])));
+            $new_name = $str->user_login."_".time().".".$ext;
+
+            $expensions= array("jpeg","jpg","png","gif");
 
             if(in_array($file_ext,$expensions)=== false){
-                $errors[]="extension not allowed, please choose a JPEG or PNG file.";
+                $errors = true;;
             }
 
             if($file_size > 2097152){
-                $errors[]='File size must be excately 2 MB';
-            }
-            if(empty($errors)==true){
-                $dir = wp_get_upload_dir();
-                move_uploaded_file($file_tmp, $dir['basedir']."/users/".$file_name);
-                update_user_meta( $user_id, 'logo', htmlentities( $_FILES['logo']['name'] ) );
-                update_user_meta( $user_id, 'photo', htmlentities( $_FILES['logo']['name'] ) );
-                echo "Success";
-            }else{
-                print_r($errors);
+                $errors = true;;
             }
 
+            if( !$errors ){
+                $dir = wp_get_upload_dir();
+                if (move_uploaded_file($file_tmp, $dir['basedir']."/users/".$new_name)){
+                    update_user_meta( $user_id, 'photo', $new_name );
+                    update_user_meta( $user_id, 'logo', $new_name);
+                }
+            }
         }
 
         update_user_meta( $user_id, 'number', htmlentities( $_POST[ 'number' ] ) );
         update_user_meta( $user_id, 'phone_number', htmlentities( $_POST[ 'number' ] ) );
-
         update_user_meta( $user_id, 'company_name', htmlentities( $_POST[ 'company_name' ] ) );
-
         update_user_meta( $user_id, 'website', htmlentities( $_POST[ 'website' ] ) );
         update_user_meta( $user_id, 'insta', htmlentities( $_POST[ 'insta' ] ) );
         update_user_meta( $user_id, 'fb', htmlentities( $_POST[ 'fb' ] ) );
         update_user_meta( $user_id, 'twitter', htmlentities( $_POST[ 'twitter' ] ) );
         update_user_meta( $user_id, 'pinterest', htmlentities( $_POST[ 'pinterest' ] ) );
         update_user_meta( $user_id, 'youtube', htmlentities( $_POST[ 'youtube' ] ) );
-
         update_user_meta( $user_id, 'shortbio', htmlentities( $_POST[ 'shortbio'] ) );
-
         update_user_meta( $user_id, 'jrrny_link', htmlentities( $_POST[ 'jrrny_link' ] ) );
         update_user_meta( $user_id, 'monthlyvisit', htmlentities( $_POST[ 'monthlyvisit' ] ) );
-
         update_user_meta( $user_id, 'newsletter', htmlentities( $_POST[ 'newsletter' ] ) );
         update_user_meta( $user_id, 'newsletter_subscriber_count', htmlentities( $_POST[ 'newsletter_subscriber' ] ) );
-
         update_user_meta( $user_id, 'traveler_type',  $_POST['traveler_type' ] );
         update_user_meta( $user_id, 'location', htmlentities( $_POST['location'] ) );
-
 
     }
 }// end func
 
-function custom_admin_js() {
-    $url = get_bloginfo('template_directory') . '/js/wp-admin.js';
-    echo '"<script type="text/javascript" src="'. $url . '"></script>"';
-    ?>
-    <script>
-        // Variable type options are valid for variable workshop.
-        //$( '.show_if_variable:not(.hide_if_gift-card)' ).addClass( 'show_if_gift-card' );
+remove_action( 'template_redirect', array( 'WC_Form_Handler', 'save_account_details' ) );
+add_action( 'template_redirect',  'custom_save_account_details'  );
 
-        // Trigger change
-        jQuery( 'select#product-type' ).change(function(){
+function custom_save_account_details() {
 
-            // Show variable type options when new attribute is added.
+    if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
+        return;
+    }
+
+    if ( empty( $_POST['action'] ) || 'save_account_details' !== $_POST['action'] || empty( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'save_account_details' ) ) {
+        return;
+    }
+
+    $errors       = new WP_Error();
+    $user         = new stdClass();
+
+    $user->ID     = (int) get_current_user_id();
+    $current_user = get_user_by( 'id', $user->ID );
+
+    if ( $user->ID <= 0 ) {
+        return;
+    }
+
+    $account_first_name = ! empty( $_POST['account_first_name'] ) ? wc_clean( $_POST['account_first_name'] ) : '';
+    $account_last_name  = ! empty( $_POST['account_last_name'] ) ? wc_clean( $_POST['account_last_name'] ) : '';
+    $account_email      = ! empty( $_POST['account_email'] ) ? wc_clean( $_POST['account_email'] ) : '';
+    $pass_cur           = ! empty( $_POST['password_current'] ) ? $_POST['password_current'] : '';
+    $pass1              = ! empty( $_POST['password_1'] ) ? $_POST['password_1'] : '';
+    $pass2              = ! empty( $_POST['password_2'] ) ? $_POST['password_2'] : '';
+    $save_pass          = true;
+
+    $user->first_name   = $account_first_name;
+    $user->last_name    = $account_last_name;
 
 
-            jQuery( '#product_attributes .show_if_variable:not(.hide_if_gift-card)' ).addClass( 'show_if_gift-card' );
+    // Prevent emails being displayed, or leave alone.
+    $user->display_name = is_email( $current_user->display_name ) ? $user->first_name : $current_user->display_name;
 
-            var $attributes     = jQuery( '#product_attributes' ).find( '.woocommerce_attribute' );
+    if ( ! empty( $pass_cur ) && empty( $pass1 ) && empty( $pass2 ) ) {
+        wc_add_notice( __( 'Please fill out all password fields.', 'woocommerce' ), 'error' );
+        $save_pass = false;
+    } elseif ( ! empty( $pass1 ) && empty( $pass_cur ) ) {
+        wc_add_notice( __( 'Please enter your current password.', 'woocommerce' ), 'error' );
+        $save_pass = false;
+    } elseif ( ! empty( $pass1 ) && empty( $pass2 ) ) {
+        wc_add_notice( __( 'Please re-enter your password.', 'woocommerce' ), 'error' );
+        $save_pass = false;
+    } elseif ( ( ! empty( $pass1 ) || ! empty( $pass2 ) ) && $pass1 !== $pass2 ) {
+        wc_add_notice( __( 'New passwords do not match.', 'woocommerce' ), 'error' );
+        $save_pass = false;
+    } elseif ( ! empty( $pass1 ) && ! wp_check_password( $pass_cur, $current_user->user_pass, $current_user->ID ) ) {
+        wc_add_notice( __( 'Your current password is incorrect.', 'woocommerce' ), 'error' );
+        $save_pass = false;
+    }
 
-            if (jQuery( 'select#product-type' ).val() =="job_package") {
-                //alert('job_package');
-                //$attributes.find( '.enable_variation' ).show();
-                jQuery('.variations_tab' ).css({'display':'block !important'});
-                jQuery('.variations_tab' ).addClass('test');
-                jQuery('#product_attributes .show_if_variable' ).addClass('test');
+    if ( $pass1 && $save_pass ) {
+        // Handle required fields
+        $required_fields = apply_filters( 'woocommerce_save_account_details_required_fields', array(
+            'account_first_name' => __( 'First name', 'woocommerce' ),
+            'account_email'      => __( 'Email address', 'woocommerce' ),
+        ) );
+    }else{
+        $required_fields = apply_filters( 'woocommerce_save_account_details_required_fields', array(
+            'account_first_name' => __( 'First name', 'woocommerce' ),
+            'account_last_name'  => __( 'Last name', 'woocommerce' ),
+            'account_email'      => __( 'Email address', 'woocommerce' ),
+        ) );
+    }
+
+    foreach ( $required_fields as $field_key => $field_name ) {
+        if ( empty( $_POST[ $field_key ] ) ) {
+            wc_add_notice( sprintf( __( '%s is a required field.', 'woocommerce' ), '<strong>' . esc_html( $field_name ) . '</strong>' ), 'error' );
+        }
+    }
+
+    if ( $account_email ) {
+        $account_email = sanitize_email( $account_email );
+        if ( ! is_email( $account_email ) ) {
+            wc_add_notice( __( 'Please provide a valid email address.', 'woocommerce' ), 'error' );
+        } elseif ( email_exists( $account_email ) && $account_email !== $current_user->user_email ) {
+            wc_add_notice( __( 'This email address is already registered.', 'woocommerce' ), 'error' );
+        }
+        $user->user_email = $account_email;
+    }
+
+
+
+    if ( $pass1 && $save_pass ) {
+        $user->user_pass = $pass1;
+    }
+
+    // Allow plugins to return their own errors.
+    do_action_ref_array( 'woocommerce_save_account_details_errors', array( &$errors, &$user ) );
+
+    if ( $errors->get_error_messages() ) {
+        foreach ( $errors->get_error_messages() as $error ) {
+            wc_add_notice( $error, 'error' );
+        }
+    }
+
+    if ( wc_notice_count( 'error' ) === 0 ) {
+
+        wp_update_user( $user );
+
+        wc_add_notice( __( 'Account details changed successfully.', 'woocommerce' ) );
+        do_action( 'woocommerce_save_account_details', $user->ID );
+
+        $myaccount = wc_get_page_permalink( 'myaccount' ) ;
+
+        if( $current_user->roles[0] == 'candidate'){
+
+            $args = apply_filters( 'resume_manager_get_dashboard_resumes_args', array(
+                'post_type'           => 'resume',
+                'post_status'         => 'any',
+                'ignore_sticky_posts' => 1,
+                'posts_per_page'      => -1,
+                'author'              => $user->ID
+            ) );
+
+            $resumes = new WP_Query( $args );
+
+            if ( $resumes->have_posts() ){
+                wp_safe_redirect($myaccount.'/edit-account');
+                exit;
+            }else{
+                wp_safe_redirect($myaccount.'/edit-account/?success=2');
+                exit;
             }
-        });
 
-
-    </script>
-<?php
+        }
+        if( $current_user->roles[0] == 'employer' ) {
+            wp_safe_redirect($myaccount.'/edit-account?success=2');
+            exit;
+        } else {
+            wp_safe_redirect( wc_get_page_permalink( 'myaccount' ) );
+            exit;
+        }
+    }
 }
-add_action('admin_footer', 'custom_admin_js');
 
-function custom_admin_css()
-{
-    ?>
-    <style type="text/css">
-        ul li.test{ display:block !important;}
-        #product_attributes .test{ display:block !important;}
-    </style>
-<?php
+
+function get_company_meta_logo( $post, $size = 'thumbnail' ){
+    $post = get_post( $post );
+
+    if ( $post->post_type !== 'job_listing' ) {
+        echo '';
+    }
+
+    $user_id = $post->post_author;
+
+    $logo =  get_user_meta( $user_id, 'logo', true );
+
+    $dir = wp_get_upload_dir();
+
+    $file_logo = $dir['baseurl']."/users/".$logo;
+
+    if ( ! empty( $file_logo ) && ( strstr( $file_logo, 'http' ) || file_exists( $file_logo ) ) ) {
+        echo '<img class="company_logo" src="' . esc_attr( $file_logo ) . '" alt="Company logo" />';
+    } else  {
+        echo '<img class="company_logo" src="' . esc_attr( apply_filters( 'job_manager_default_company_logo', JOB_MANAGER_PLUGIN_URL . '/assets/images/company.png' ) ) . '" alt="Company logo" />';
+    }
 }
-add_action('admin_footer', 'custom_admin_css');
+
 
 remove_action( 'woocommerce_before_single_product_summary', 'woocommerce_show_product_images', 20 );
-//add_action( 'woocommerce_before_single_product_summary', 'woocommerce_show_product_thumbnails', 20 );
 remove_action( 'woocommerce_after_single_product_summary', 'woocommerce_output_product_data_tabs', 10 );
-
-add_action( 'woocommerce_single_product_summary','add_new_package');
-
-function add_new_package()
-{
-    $queried_object = get_queried_object();
-
-    if ( $queried_object ) {
-        $post_id = $queried_object->ID;
-        // echo $post_id;
-    }
-
-    $args = array(
-        'post_type'     => 'product_variation',
-        'post_status'   => array( 'private', 'publish' ),
-        'numberposts'   => -1,
-        'orderby'       => 'menu_order',
-//'order'         => 'asc',
-        'post_parent'   => $post_id // $post->ID
-    );
-    $variations = get_posts( $args );
-//echo "<pre>"; print_r($variations); echo "</pre>";
-    echo '<section id="pricePlans">
-		<ul id="plans">	';
-    echo do_shortcode('[submit_job_form]');
-    $current_page_id = $wp_query->post->ID;
-    echo $current_page_id;
-    $category_detail=get_the_category($current_page_id);
-    echo $category_detail;
-
-    $counter=1;
-    foreach($variations as $variation)
-    {
-        ?>
-        <li class="plan" package="<?php echo $variation->ID; ?>">
-            <ul class="planContainer">
-                <li class="title"><h2  <?php if($counter==2) { ?>class="bestPlanTitle"<?php } ?>><?php  echo $variation->post_title; ?></h2></li>
-                <li class="price"><p <?php if($counter==2) { ?> class="bestPlanPrice"<?php } ?>> <?php
-                        global $woocommerce;
-                        $product_variation = new WC_Product_Variation($variation->ID);
-                        $regular_price = $product_variation->regular_price;
-                        echo get_woocommerce_currency_symbol().''.$regular_price;
-                        ?>/Amount</p></li>
-                <li>
-                    <ul class="options">
-                        <?php echo get_post_meta( $variation->ID, '_variation_description', true ); ?>
-                    </ul>
-                </li>
-                <li class=""><a href="http://traversebyjrrny.com/?add-to-cart=<?php echo $post_id ; ?>&variation_id=<?php echo $variation->ID; ?>" class="letmecheck">Add to cart</a></li>
-                <li class="button"><a class="bestPlanButton">Purchase</a></li>
-            </ul>
-        </li>
-        <?php
-        $counter++;
-    }
-    ?>
-    <?php
-    echo '</ul></section>';
-}
-
 remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_price', 10 );
 remove_action( 'woocommerce_single_product_summary', 'woocommerce_template_single_excerpt', 20 );
 
@@ -943,42 +1003,6 @@ function add_package_list(){
     echo do_shortcode('[submit_job_form]');
 }
 
-//add_shortcode( 'my_products', 'bbloomer_user_products_bought' );
-
-function bbloomer_user_products_bought() {
-    global $product, $woocommerce, $woocommerce_loop;
-    $columns = 3;
-    $current_user = wp_get_current_user();
-    $args = array(
-        'post_type'             => 'product',
-        'posts_per_page'    => -1,
-        'post_status'           => 'publish',
-        'tax_query'         => array(
-            array(
-                'taxonomy' => 'product_type',
-                'field'    => 'slug',
-                'terms'    => 'job_package'
-            ))
-
-    );
-    $loop = new WP_Query($args);
-
-    woocommerce_product_loop_start();
-
-    while ( $loop->have_posts() ) :
-        $loop->the_post();
-        $theid = get_the_ID();
-        if ( wc_customer_bought_product( $current_user->user_email, $current_user->ID, $theid ) ) {
-            wc_get_template_part( 'content', 'product' );
-        }
-    endwhile;
-
-    woocommerce_product_loop_end();
-
-    woocommerce_reset_loop();
-    wp_reset_postdata();
-
-}
 
 /**********************************Adding status to the job applicatioins ***********************************/
 
@@ -1124,163 +1148,7 @@ add_action('wp_footer','add_script_in_last');
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function my_custom_friends_filter($friends) {
-
-    // Get current user information //
-
-    global $current_user;
-    get_currentuserinfo();
-
-    // Get friend list of the current user with the help of your custom function
-    // It will be an array containing friends id like array('2','5','7')
-    //
-
-    // $friends = get_friend_list($current_user->ID);
-    $userid = get_current_user_id();
-    $user_meta=get_userdata($userid);
-    $user_roles=$user_meta->roles[0];
-    if($user_roles=="candidate")
-    {
-
-
-        global $wpdb;
-        // If user is not logged in, abort
-        if ( ! is_user_logged_in() ) {
-            do_action( 'job_manager_job_applications_past_logged_out' );
-            return;
-        }
-
-
-        $friends=array();
-        $args = apply_filters( 'job_manager_job_applications_past_args', array(
-            'post_type'           => 'job_application',
-            'post_status'         => array_keys( get_job_application_statuses() ),//array_keys( get_job_application_statuses() )array('In Progress','Completed')
-            'posts_per_page'      => 25,
-            'offset'              => ( max( 1, get_query_var('paged') ) - 1 ) * 25,
-            'ignore_sticky_posts' => 1,
-            'meta_key'            => '_candidate_user_id',
-            'meta_value'          => get_current_user_id(),
-        ) );
-
-        $applications = new WP_Query( $args );
-
-        ob_start();
-
-        if ( $applications->have_posts() ) {
-            foreach ( $applications as $application ) {
-                global $wp_post_statuses;
-
-                $application_id = $application->ID;
-                $job_id         = wp_get_post_parent_id( $application_id );
-                $job            = get_post( $job_id );
-                $job_title      = get_post_meta( $application_id, '_job_applied_for', true );
-                $user_id      = get_post_meta( $application_id, '_job_author', true );
-                array_push($friends,$order);
-
-            }
-
-        } else {
-
-        }
-
-    }
-
-    elseif($user_roles=="employer")
-    {
-        $args = array(
-            'post_type'     => 'job_listing',
-            'post_status'   => array( 'private', 'publish' ),
-            'numberposts'   => -1,
-            'orderby'       => 'menu_order',
-//'order'         => 'asc',
-            'meta_key'            => '_job_author',
-            'meta_value'          => get_current_user_id(),
-        );
-
-        $listings = new WP_Query( $args );
-
-        ob_start();
-        $friends=array();
-        if ( $listings->have_posts() ) {
-            foreach($listings as $listing)
-            {
-                global $wp_post_statuses;
-
-                $listing_id = $listing->ID;
-
-
-                $args = apply_filters( 'job_manager_job_applications_past_args', array(
-                    'post_type'           => 'job_application',
-                    'post_status'         => array_keys( get_job_application_statuses() ),//array_keys( get_job_application_statuses() )array('In Progress','Completed')
-                    'posts_per_page'      => 25,
-                    'offset'              => ( max( 1, get_query_var('paged') ) - 1 ) * 25,
-                    'ignore_sticky_posts' => 1,
-                    'meta_key'            => 'post_parent',
-                    'meta_value'          => $listing_id,
-                ) );
-
-                $applications = new WP_Query( $args );
-
-                ob_start();
-
-                if ( $applications->have_posts() ) {
-                    foreach ( $applications as $application ) {
-                        global $wp_post_statuses;
-
-                        $application_id = $application->ID;
-                        $job_id         = wp_get_post_parent_id( $application_id );
-                        $job            = get_post( $job_id );
-                        $job_title      = get_post_meta( $application_id, '_job_applied_for', true );
-                        $user_id      = get_post_meta( $application_id, '_job_author', true );
-                        array_push($friends,$order);
-
-
-
-                    }
-
-                }
-
-
-            }
-
-        }
-    }
-    elseif($user_roles=="guest")
-    {
-        $friends=array();
-        ?>
-        <style> .ifc #ifc-app-container.ifc-light .ifc-chat-list .ifc-chat-list-roster .ifc-chat-list-roster-sub-group.ifc-chat-list-roster-room
-            {
-                display:block !important;
-            }
-
-        </style>
-    <?php
-    }
-    else
-    {}
-
-    return $friends;
-}
-add_filter('iflychat_get_user_friends_filter', 'my_custom_friends_filter');
-
 define('DEPOSIT_ID', 1286); //live
-//define('DEPOSIT_ID', 1397); //local
-
-
-/*
-add_action('woocommerce_checkout_process', 'c_custom_checkout_field_process');
-function c_custom_checkout_field_process() {
-// Check if set, if its not set add an error.
-if ( ! $_POST['c_type'] && ($_POST['payment_method'] == 'cheque'))
-wc_add_notice( __( 'Please enter the custom field.' ), 'error' );
-?>
-<script>
-alert(<?php echo $_SESSION['job_id']; ?>);
-</script>
-<?php
-
-}*/
 
 add_action('admin_footer','add_css_in_header');
 function add_css_in_header()
@@ -1296,43 +1164,6 @@ function add_css_in_header()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-add_action('show_user_profile', 'my_user_profile_edit_action');
-function my_user_profile_edit_action($user) {
-
-    ?>
-    <h3>Phone Number</h3>
-    <label for="artwork_approved">
-        <input name="phn_number" type="text" id="artwork_approved" value="">
-    </label>
-<?php
-}
-
-
-add_filter( 'submit_job_form_fields', 'frontend_add_category_field' );
-
-function frontend_add_category_field( $fields ) {
-    $fields['job']['job_category'] = array(
-        'label'       => __( 'Salary ($)', 'job_manager' ),
-        'type'        => 'text',
-        'placeholder' => 'e.g. 20000',
-        'description' => '',
-        'priority'    => 7
-    );
-    return $fields;
-}
-
-add_filter( 'job_manager_job_listing_data_fields', 'admin_add_category_field' );
-
-function admin_add_category_field( $fields ) {
-    $fields['_job_category'] = array(
-        'label'       => __( 'Job category', 'job_manager' ),
-        'type'        => 'text',
-        'placeholder' => '',
-        'description' => ''
-    );
-    return $fields;
-}
-
 add_action( 'job_manager_update_job_data', 'update_employer_woocommerce_fields', 100, 2 );
 
 function update_employer_woocommerce_fields( $job_id, $values ){
@@ -1342,7 +1173,6 @@ function update_employer_woocommerce_fields( $job_id, $values ){
     $my_input_id = isset( $_POST['job_category'] ) ? intval( $_POST['job_category'] ) : false;
     $my_input_name = isset( $_POST['job_category_name'] ) ? sanitize_text_field( $_POST['job_category_name'] ) : false;
     $job_company_name = isset( $_POST['job_company_name'] ) ? sanitize_text_field( $_POST['job_company_name'] ) : false;
-
 
     if (term_exists( $my_input_id, 'job_listing_category' )){
         wp_set_object_terms( $job_id, $my_input_id, 'job_listing_category' );
@@ -1354,62 +1184,118 @@ function update_employer_woocommerce_fields( $job_id, $values ){
 
     if( $job_company_name ) update_post_meta( $job_id, '_company_name', $job_company_name );
 
-   /* if ( $user ){
-        $str = get_userdata($user_id);
+    /* add new job listings if user check "Would you like to add another influencer to this campaign?" */
 
-        if($str->roles[0] == "employer"){
-            update_user_meta( $user_id, 'billing_company', htmlentities( $_POST[ 'company_name' ]) );
-            update_user_meta( $user_id, 'website', htmlentities( $_POST[ 'company_website' ] ) );
-            update_user_meta( $user_id, 'company_name', htmlentities( $_POST[ 'company_name' ] ) );
-            update_user_meta( $user_id, 'shortbio', htmlentities( $_POST[ 'company_tagline'] ) );
-            update_user_meta( $user_id, 'logo', htmlentities( $_FILES['company_logo']['name'] ) );
+    if ( (isset( $_POST['add_influencer'] ) &&  $_POST['add_influencer'] == 'yes') && (isset( $_POST['num_influencers'] ) &&  intval($_POST['num_influencers']) ) ){
+
+        update_post_meta($job_id, '_multiply_job_post', intval($_POST['num_influencers']));
+
+    }
+
+    if ( (isset( $_POST['add_influencer'] ) &&  $_POST['add_influencer'] == 'yes') && (isset( $_POST['num_influencers'] ) &&  intval($_POST['num_influencers']) )){
+
+        $num_new_job_listings = intval($_POST['num_influencers']);
+
+        if ( !$num_new_job_listings ) return;
+
+        $current_listing = get_post( $job_id );
+
+        if (isset( $current_listing ) && $current_listing != null){
+
+            for( $i = 1; $i <= $num_new_job_listings; $i++ ){
+
+                $args = array(
+                    'comment_status' => $current_listing->comment_status,
+                    'ping_status'    => $current_listing->ping_status,
+                    'post_author'    => $current_listing->post_author,
+                    'post_content'   => $current_listing->post_content,
+                    'post_excerpt'   => $current_listing->post_excerpt,
+                    'post_name'      => $current_listing->post_name,
+                    'post_parent'    => $current_listing->post_parent,
+                    'post_password'  => $current_listing->post_password,
+                    'post_status'    => $current_listing->post_status,
+                    'post_title'     => $current_listing->post_title,
+                    'post_type'      => $current_listing->post_type,
+                    'to_ping'        => $current_listing->to_ping,
+                    'menu_order'     => $current_listing->menu_order
+                );
+
+                $new_job_listing = wp_insert_post( $args );
+
+                $data_meta = get_post_custom( $job_id );
+
+                foreach ( $data_meta as $key => $values) {
+                    foreach ($values as $value) {
+                        add_post_meta( $new_job_listing, $key, $value );
+                    }
+                }
+                delete_post_meta( $new_job_listing, '_multiply_job_post');
+                update_post_meta( $new_job_listing, '_source_job', $job_id );
+
+                $job_categories = wp_get_object_terms( $job_id, 'job_listing_category');
+
+                foreach( $job_categories as $job_category ){
+                    wp_set_object_terms( $new_job_listing, $job_category->term_id, 'job_listing_category' );
+
+                }
+            }
 
         }
-    }*/
+
+    }
 
 }
-//add_action( 'job_manager_update_job_data', 'add_deposit_to_order', 100, 2 );
 
-function add_deposit_to_order( $job_id, $values ){
+
+add_action( 'woocommerce_before_calculate_totals', 'create_multiply_job_products' );
+
+function create_multiply_job_products( $cart_object ) {
     global $woocommerce;
 
-    $deposit_product_id = DEPOSIT_ID;
+    $deposit_product_id     = DEPOSIT_ID;
+    $additional_price       = 0;
+    $found                  = false;
+    $num_multiply_jobs      = 0;
+    $current_name           = '';
 
     if ( sizeof( WC()->cart->get_cart() ) > 0 ) {
-        foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {
-            $_product = $values['data'];
+
+        foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
+            $_product = $cart_item['data'];
+
+            if ( $_product->id != $deposit_product_id ){
+                $job_id = $cart_item['job_id'];                                             //get job we want to buy
+
+                $num_multiply_jobs = get_post_meta( $job_id,'_multiply_job_post', true );   //if we set few influencers for this job
+
+                $current_price = $cart_item['data']->price;
+                $additional_price = $current_price*$num_multiply_jobs;
+                $current_name = $cart_item['data']->name;
+
+            }
 
             if ( $_product->id == $deposit_product_id )
                 $found = true;
         }
-        // if product not found, add it
-        if ( ! $found )
+
+        // if we have additional influencer(s) we need to add price for it
+        if ( ! $found && $num_multiply_jobs > 0 ){
+
             WC()->cart->add_to_cart( $deposit_product_id );
-    } else {
-        // if no products in cart, add it
-        WC()->cart->add_to_cart( $deposit_product_id );
-    }
 
-}
-
-//add_action( 'woocommerce_before_calculate_totals', 'add_custom_price' );
-
-function add_custom_price( $cart_object ) {
-
-    $deposit_product_id = DEPOSIT_ID;
-    if (isset ($_SESSION['deposit_value']))
-    $custom_price = $_SESSION['deposit_value'];
-
-    foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
-
-        if($cart_item['data']->get_id() == $deposit_product_id){
-
-            $cart_item['data']->set_price($custom_price);
         }
 
+        //set proper name for additional influencers and price for it
+        foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
+            if($cart_item['data']->get_id() == $deposit_product_id){
+
+                $cart_item['data']->set_price( $additional_price ); // price is a price for parent job package * number of additional influencers
+
+                $cart_item['data']->set_name( $current_name.' (for '.$num_multiply_jobs.' additional influencer(s) )' );
+
+            }
+        }
     }
-
-
 }
 
 //add_action( 'woocommerce_before_checkout_form', 'deposit_add_checkout_notice', 11 );
@@ -1427,78 +1313,6 @@ function deposit_add_checkout_notice() {
 
     }
 }
-
-
-
-/*add_filter( 'submit_resume_form_save_resume_data', 'update_candidate_woocommerce_fields' );
-
-function update_candidate_woocommerce_fields(){
-    $user_id = get_current_user_id();
-    $user = get_userdata( $user_id );
-    if ( $user ){
-        $str = get_userdata($user_id);
-        if($str->roles[0] == "candidate"){
-
-            update_user_meta( $user_id, 'website', htmlentities( $_POST[ 'influencer_website' ] ) );
-            update_user_meta( $user_id, 'monthlyvisit', htmlentities( $_POST[ 'estimated_monthly_visitors' ] ) );
-            update_user_meta( $user_id, 'fb', htmlentities( $_POST[ 'facebook_link' ] ) );
-            update_user_meta( $user_id, 'insta', htmlentities( $_POST[ 'instagram_link' ] ) );
-            update_user_meta( $user_id, 'twitter', htmlentities( $_POST[ 'twitter_link' ] ) );
-            update_user_meta( $user_id, 'youtube', htmlentities( $_POST[ 'youtube_link' ] ) );
-            update_user_meta( $user_id, 'newsletter', htmlentities( $_POST[ 'newsletter' ] ) );
-            update_user_meta( $user_id, 'shortbio', htmlentities( $_POST[ 'short_influencer_bio'] ) );
-            update_user_meta( $user_id, 'video', htmlentities( $_POST['video_sample_embed'] ) );
-            update_user_meta( $user_id, 'location', htmlentities( $_POST['candidate_location'] ) );
-            update_user_meta( $user_id, 'photo', htmlentities( $_FILES['candidate_photo']['name'] ) );
-        }
-
-    }
-}*/
-
-
-
-//add_action( 'woocommerce_thankyou', 'bbloomer_checkout_save_user_meta');
-
-function bbloomer_checkout_save_user_meta( $order_id ) {
-    global $wp_session;
-    $wp_session = WP_Session::get_instance();
-    session_start();
-    global $post;
-    $order = new WC_Order( $order_id );
-    $user_id = $order->user_id;
-
-    $user_meta=get_userdata($user_id);
-
-    $user_roles=$user_meta->roles;
-
-    if($user_roles[0]=="employer")
-    {
-        update_field('Budget_for_the_influencer', $_SESSION['deposit_value'], $_SESSION['job_id'] );
-        update_field('job_listing_order_id', $order_id, $_SESSION['job_id']);
-    }
-
-    ?>
-    <script>
-        jQuery(document).ready(function(){
-            setTimeout(function() {
-                window.location.href = "<?php echo get_site_url(); ?>/job-dashboard/"
-            }, 5000);
-        });
-    </script>
-    <?php
-
-}
-
-
-function isa_order_received_text( $text, $order ) {
-
-    $new =  ' Your deposit has been received.  Influencers should begin to appear in your Influencers section within 48 hours.';
-    return $new;
-
-}
-//add_filter('woocommerce_thankyou_order_received_text', 'isa_order_received_text', 10, 2 );
-
-
 
 add_action('wp_ajax_application_form_handler_direct', 'application_form_handler_direct');
 add_action('wp_ajax_nopriv_application_form_handler_direct', 'application_form_handler_direct');
@@ -2022,7 +1836,7 @@ function submit_job_steps_pending( $steps ) {
 
     return $steps;
 }
-
+//echo "<pre>"; print_r($_POST); echo "</pre>";
 function preview_handler_pending() {
     if ( ! $_POST ) {
         return;
@@ -2064,33 +1878,14 @@ function preview_handler_pending() {
 
         }
 
-        //$budget= intval(get_post_meta($job->ID, '_targeted_budget', true));
-
         $amount = round($price - ($price*0.3), 2);
 
         update_field('Budget_for_the_influencer',$amount,$job->ID);
         update_post_meta($job->ID, '_targeted_budget', $amount);
-       // WC()->cart->empty_cart();
 
-   /*     if ( sizeof( WC()->cart->get_cart() ) > 0 ) {
-            foreach ( WC()->cart->get_cart() as $cart_item_key => $values ) {
-                $_product = $values['data'];
-
-                if ( $_product->id == DEPOSIT_ID )
-                    $found = true;
-            }
-            // if product not found, add it
-            if ( ! $found )
-                WC()->cart->add_to_cart( DEPOSIT_ID, 1 );
-        } else {
-            // if no products in cart, add it
-            WC()->cart->add_to_cart( DEPOSIT_ID, 1 );
-        }
-
-        wc_add_to_cart_message( DEPOSIT_ID );*/
+        WC()->cart->empty_cart();
 
         $is_user_package = false;
-
 
         if ( ! empty( $_POST['job_package'] ) ) {
             if ( is_numeric( $_POST['job_package'] ) ) {
@@ -2102,67 +1897,7 @@ function preview_handler_pending() {
             $is_user_package = absint( $_COOKIE['chosen_package_is_user_package'] ) === 1;
         }
         $form->next_step();
-        // Redirect to checkout page
-       /* if ( $is_user_package ){
-            wp_redirect( get_permalink( wc_get_page_id( 'checkout' ) ) );
-            exit;
-
-        } else{
-
-        }*/
-
     }
-}
-
-add_filter('woocommerce_add_cart_item_data','wdm_add_item_data',1,10);
-
-function wdm_add_item_data($cart_item_data, $product_id) {
-
-    global $woocommerce;
-    $new_value = array();
-    $new_value['job_id'] = $_POST['job_id'];
-
-    if(empty($cart_item_data)) {
-        return $new_value;
-    } else {
-        return array_merge($cart_item_data, $new_value);
-    }
-}
-
-add_filter('woocommerce_get_cart_item_from_session', 'wdm_get_cart_items_from_session', 1, 3 );
-function wdm_get_cart_items_from_session($item,$values,$key) {
-
-    if (array_key_exists( 'job_id', $values ) ) {
-        $item['job_id'] = $values['job_id'];
-    }
-
-    return $item;
-}
-
-add_action('woocommerce_add_order_item_meta','wdm_add_values_to_order_item_meta',1,2);
-function wdm_add_values_to_order_item_meta($item_id, $values) {
-    global $woocommerce,$wpdb;
-    $job = get_post( absint( $values['job_id'] ) );
-
-    wc_add_order_item_meta( $item_id, __( 'Job Listing', 'wp-job-manager-wc-paid-listings' ), $job->post_title );
-    wc_add_order_item_meta( $item_id, '_job_id', $values['job_id'] );
-
-}
-
-add_filter('woocommerce_cart_item_name','add_usr_custom_session',1,3);
-function add_usr_custom_session($product_name, $values, $cart_item_key ) {
-
-    $return_string = $product_name . "<br />" . $values['_job_id'];
-    return $return_string;
-
-}
-
-//add_filter( 'submit_job_step_preview_submit_text',  'submit_button_text_pending', 10 );
-
-function submit_button_text_pending( $button_text ) {
-    $button_text = __( 'Pay deposit for listing &rarr;' );
-    return $button_text;
-
 }
 
 add_action( 'woocommerce_order_status_completed', 'so_payment_complete' );
@@ -2177,22 +1912,28 @@ function so_payment_complete( $order_id ){
 
     foreach( $order_item as $item_id => $product ) {
         $job_id = wc_get_order_item_meta ($item_id, '_job_id');
-        $job = get_post( absint( $job_id, 'ARRAY_A') );
 
-        if ( $job ){
+        $args = array(
+            'numberposts'   => -1,
+            'meta_key'      => '_source_job',
+            'meta_value'    => $job_id,
+            'post_type'     => 'job_listing',
+            'post_status'   => 'preview',
+            'fields'        => 'ids'
+        );
+
+        $job_clones = new WP_Query( $args );
+
+        if ($job_clones -> have_posts())  $jobs = $job_clones -> posts;
+
+        foreach($jobs as $job_id){
             $post = array();
             $post['ID'] = $job_id;
             $post['post_status'] = 'publish';
             wp_update_post($post);
+
         }
     }
-}
-
-add_action( 'job_manager_job_submitted_content_pending_payment', 'job_submitted_pending' , 10 );
-
-function job_submitted_pending( $job ) {
-
-    printf( __( 'Thanks. Your Job listing was submitted successfully and will be visible once payment is verified.' ), get_permalink( $job->ID ) );
 }
 
 add_filter( 'job_manager_get_dashboard_jobs_args',  'dashboard_job_args_pending'  );
@@ -2232,6 +1973,9 @@ function workscout_register_form_child() {
     echo '<label class="col-3" for="candidate"><input type="radio" name="role" id="candidate" value="candidate" /> an Influencer </label>';
     echo '<label class="col-3" for="employer"><input type="radio" name="role" value="employer" /> a Brand </label>';
     echo '<label class="col-3" for="employer"><input type="radio" name="role" value="employer" /> an Agency </label>';
+    echo '</p>';
+    echo '<p class="form-row ">';
+    echo '<label for="agreement"><input type="checkbox" name="agreement" id="agreement" value="yes" /> Yes, I understand and agree to the <a target="_blank" href="'.site_url('/terms-of-service/').'">Traverse Terms of Service.</a></label>';
     echo '</p>';
 
     if ( ! empty( $_POST['role'] ) ) {
@@ -2304,6 +2048,10 @@ function custom_redirect(){
                 $error[] = __('Please, select who you are');
             }
 
+            if ( !isset($_POST['agreement']) || $_POST['agreement']=='' ){
+                $error[] = __('You should agree to the Traverse Terms of Service');
+            }
+
             if ( count($error ) == 0){
                 $new_customer = wc_create_new_customer( sanitize_email( $email ), wc_clean( $username ), $password );
 
@@ -2350,9 +2098,6 @@ function custom_redirect(){
 }
 
 remove_action( 'wp_loaded', array( 'WC_Form_Handler', 'process_registration' ), 20 );
-
-//add_action('wp_loaded', 'custom_redirect', 20);
-
 
 add_action('wp_ajax_custom_redirect', 'custom_redirect');
 add_action('wp_ajax_nopriv_custom_redirect', 'custom_redirect');
@@ -2474,162 +2219,6 @@ function send_on_review (){
 
 add_action('wp_ajax_send_on_review', 'send_on_review');
 add_action('wp_ajax_nopriv_send_on_review', 'send_on_review');
-
-
-add_action( 'template_redirect',  'custom_save_account_details'  );
-
-function custom_save_account_details() {
-
-    if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
-        return;
-    }
-
-    if ( empty( $_POST['action'] ) || 'save_account_details' !== $_POST['action'] || empty( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'save_account_details' ) ) {
-        return;
-    }
-
-    $errors       = new WP_Error();
-    $user         = new stdClass();
-
-    $user->ID     = (int) get_current_user_id();
-    $current_user = get_user_by( 'id', $user->ID );
-
-    if ( $user->ID <= 0 ) {
-        return;
-    }
-
-    $account_first_name = ! empty( $_POST['account_first_name'] ) ? wc_clean( $_POST['account_first_name'] ) : '';
-    $account_last_name  = ! empty( $_POST['account_last_name'] ) ? wc_clean( $_POST['account_last_name'] ) : '';
-    $account_email      = ! empty( $_POST['account_email'] ) ? wc_clean( $_POST['account_email'] ) : '';
-    $pass_cur           = ! empty( $_POST['password_current'] ) ? $_POST['password_current'] : '';
-    $pass1              = ! empty( $_POST['password_1'] ) ? $_POST['password_1'] : '';
-    $pass2              = ! empty( $_POST['password_2'] ) ? $_POST['password_2'] : '';
-    $save_pass          = true;
-
-    $user->first_name   = $account_first_name;
-    $user->last_name    = $account_last_name;
-
-
-    // Prevent emails being displayed, or leave alone.
-    $user->display_name = is_email( $current_user->display_name ) ? $user->first_name : $current_user->display_name;
-
-    if ( ! empty( $pass_cur ) && empty( $pass1 ) && empty( $pass2 ) ) {
-        wc_add_notice( __( 'Please fill out all password fields.', 'woocommerce' ), 'error' );
-        $save_pass = false;
-    } elseif ( ! empty( $pass1 ) && empty( $pass_cur ) ) {
-        wc_add_notice( __( 'Please enter your current password.', 'woocommerce' ), 'error' );
-        $save_pass = false;
-    } elseif ( ! empty( $pass1 ) && empty( $pass2 ) ) {
-        wc_add_notice( __( 'Please re-enter your password.', 'woocommerce' ), 'error' );
-        $save_pass = false;
-    } elseif ( ( ! empty( $pass1 ) || ! empty( $pass2 ) ) && $pass1 !== $pass2 ) {
-        wc_add_notice( __( 'New passwords do not match.', 'woocommerce' ), 'error' );
-        $save_pass = false;
-    } elseif ( ! empty( $pass1 ) && ! wp_check_password( $pass_cur, $current_user->user_pass, $current_user->ID ) ) {
-        wc_add_notice( __( 'Your current password is incorrect.', 'woocommerce' ), 'error' );
-        $save_pass = false;
-    }
-
-    if ( $pass1 && $save_pass ) {
-        // Handle required fields
-        $required_fields = apply_filters( 'woocommerce_save_account_details_required_fields', array(
-            'account_first_name' => __( 'First name', 'woocommerce' ),
-            'account_email'      => __( 'Email address', 'woocommerce' ),
-        ) );
-    }else{
-        $required_fields = apply_filters( 'woocommerce_save_account_details_required_fields', array(
-            'account_first_name' => __( 'First name', 'woocommerce' ),
-            'account_last_name'  => __( 'Last name', 'woocommerce' ),
-            'account_email'      => __( 'Email address', 'woocommerce' ),
-        ) );
-    }
-
-    foreach ( $required_fields as $field_key => $field_name ) {
-        if ( empty( $_POST[ $field_key ] ) ) {
-            wc_add_notice( sprintf( __( '%s is a required field.', 'woocommerce' ), '<strong>' . esc_html( $field_name ) . '</strong>' ), 'error' );
-        }
-    }
-
-    if ( $account_email ) {
-        $account_email = sanitize_email( $account_email );
-        if ( ! is_email( $account_email ) ) {
-            wc_add_notice( __( 'Please provide a valid email address.', 'woocommerce' ), 'error' );
-        } elseif ( email_exists( $account_email ) && $account_email !== $current_user->user_email ) {
-            wc_add_notice( __( 'This email address is already registered.', 'woocommerce' ), 'error' );
-        }
-        $user->user_email = $account_email;
-    }
-
-
-
-    if ( $pass1 && $save_pass ) {
-        $user->user_pass = $pass1;
-    }
-
-    // Allow plugins to return their own errors.
-    do_action_ref_array( 'woocommerce_save_account_details_errors', array( &$errors, &$user ) );
-
-    if ( $errors->get_error_messages() ) {
-        foreach ( $errors->get_error_messages() as $error ) {
-            wc_add_notice( $error, 'error' );
-        }
-    }
-
-    if ( wc_notice_count( 'error' ) === 0 ) {
-
-
-        wc_add_notice( __( 'Account details changed successfully.', 'woocommerce' ) );
-        do_action( 'woocommerce_save_account_details', $user->ID );
-
-        $myaccount = wc_get_page_permalink( 'myaccount' ) ;
-
-        wp_update_user( $user );
-
-        if( $current_user->roles[0] == 'candidate'){
-
-            $args = apply_filters( 'resume_manager_get_dashboard_resumes_args', array(
-                'post_type'           => 'resume',
-                'post_status'         => 'any',
-                'ignore_sticky_posts' => 1,
-                'posts_per_page'      => -1,
-                'author'              => $user->ID
-            ) );
-
-            $resumes = new WP_Query( $args );
-
-            if ( $resumes->have_posts() ){
-
-                wp_safe_redirect($myaccount.'/edit-account');
-
-            }else{
-
-                wp_safe_redirect($myaccount.'/edit-account/?success=2');
-            }
-            exit;
-        }
-        if( $current_user->roles[0] == 'employer' ) {
-
-            wp_safe_redirect($myaccount.'/edit-account?success=2');
-            exit;
-            /*if(get_option( 'job_manager_job_dashboard_page_id')) {
-                wp_safe_redirect($myaccount.'/edit-account?success=2');
-              //  wp_safe_redirect( home_url().'/brandhome');
-            } else {
-                wp_safe_redirect( wc_get_page_permalink( 'myaccount' ) );
-            };*/
-        }/* elseif ( $current_user->roles[0] == 'candidate' ) {
-            if(get_option( 'resume_manager_candidate_dashboard_page_id')) {
-                wp_safe_redirect($myaccount.'/edit-account?success=1');
-              //  wp_safe_redirect( home_url().'/influencer-php' );
-            } else {
-                wp_safe_redirect( wc_get_page_permalink( 'myaccount' ) );
-            };
-        }*/ else {
-            wp_safe_redirect( wc_get_page_permalink( 'myaccount' ) );
-            exit;
-        }
-    }
-}
 
 
 function aj_sync_social(){
@@ -2759,4 +2348,117 @@ function paypal_request_payment(){
 
     }
 }
+
+function workscout_manage_action_icons_custom($val){
+    switch ($val) {
+
+        case 'view':
+            $icon = '<i class="fa fa-check-circle-o"></i> ';
+            break;
+        case 'email':
+            $icon = '<i class="fa fa-envelope"></i> ';
+            break;
+        case 'toggle_status':
+            $icon = '<i class="fa fa-eye-slash"></i> ';
+            break;
+        case 'delete':
+            $icon = '<i class="fa fa-remove"></i> ';
+            break;
+        case 'hide':
+            $icon = '<i class="fa fa-eye-slash"></i> ';
+            break;
+        case 'edit':
+            $icon = '<i class="fa fa-pencil"></i> ';
+            break;
+        case 'mark_filled':
+            $icon = '<i class="fa  fa-check "></i> ';
+            break;
+        case 'publish':
+            $icon = '<i class="fa  fa-eye "></i> ';
+            break;
+        case 'mark_not_filled':
+            $icon = '<i class="fa  fa-minus "></i> ';
+            break;
+        case 'reexpiries':
+            $icon = '<i class="fa fa-clock-o "></i> ';
+            break;
+        default:
+            $icon = '';
+            break;
+    }
+    return $icon;
+}
+
+add_action( 'job_manager_job_dashboard_do_action_reexpiries', 're_expiries_listing', 10, 1);
+
+function re_expiries_listing(){
+    if ( ! empty( $_REQUEST['action'] ) && ! empty( $_REQUEST['_wpnonce'] ) && wp_verify_nonce( $_REQUEST['_wpnonce'], 'job_manager_my_job_actions' ) ) {
+
+        $action = sanitize_title( $_REQUEST['action'] );
+        $job_id = absint( $_REQUEST['job_id'] );
+
+        try {
+            // Get Job
+            $job    = get_post( $job_id );
+            // Check ownership
+            if ( ! job_manager_user_can_edit_job( $job_id ) ) {
+                throw new Exception( __( 'Invalid ID', 'wp-job-manager' ) );
+            }
+
+            $duration = get_post_meta( $job_id, '_job_duration', true );                // Get duration from the product if set...
+
+            if ( ! $duration ) {
+                $duration = absint( get_option( 'job_manager_submission_duration' ) );  // ...otherwise use the global option
+            }
+
+            $current_date = date('Y-m-d');
+
+            $job_expires = get_post_meta($job_id, '_job_expires', true);                // Listing Duration is 30 days for all listings be default
+
+            $job_deadline = get_post_meta($job_id, '_job_deadline', true);              // Deadline for applicants. The listing will end automatically after this date.
+
+            $count = get_job_application_count( $job->ID );                             // get count of all applications for this job
+
+            if ( $count > 0 ) return;                                                   // if jab already has an application - drop it
+
+            if ( strtotime($job_expires) > strtotime($current_date) ) return;           // if listing doesn't expired yet - drop it
+
+            if ( $duration && $job_expires) {
+                $new_job_expires = date( 'Y-m-d', strtotime($job_expires. "+{$duration} days" ) ); // add new job duration to this job expires date
+                update_post_meta($job_id, '_job_expires', $new_job_expires);
+                update_post_meta($job_id, '_application_deadline', $new_job_expires);
+
+                wp_update_post( array(
+                    'ID'          => $job_id,
+                    'post_status' => 'publish'
+                ) );
+
+            }else return;
+
+            if (  strtotime($job_deadline) < strtotime($current_date) ){
+                update_post_meta($job_id, '_job_deadline', $new_job_expires);
+            }
+
+            remove_query_arg(
+                array( 'action', 'job_id', '_wpnonce' )
+            );
+
+          /*  get_job_manager_template( 'job_manager/job-prolng.php',
+                array(
+                    'form'               => 'job-prolong',
+                    'job_id'             => absint( $job_id ) ,
+                    'action'             => 'job_prolong',
+                    'submit_button_text' =>  __( 'Change Expiries', 'wp-job-manager' )
+                )
+            );*/
+        }
+        catch ( Exception $e ) {
+
+        }
+
+
+    }
+    wp_redirect(get_permalink());
+}
+
 ?>

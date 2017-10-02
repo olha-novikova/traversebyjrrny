@@ -24,7 +24,7 @@ function get_youtube_id_from_url($link= '')
 {
     $url = urldecode(rawurldecode($link));
 
-    $result = preg_match("/^(?:http(?:s)?:\/\/)?(?:www\.)?(?:m\.)?(?:youtu\.be\/|youtube\.com\/(?:(?:watch)?\?(?:.*&)?v(?:i)?=|(?:embed|v|vi|user|channel)\/))([^\?&\"'>]+)/", $url, $matches);
+    $result = preg_match("/^(?:http(?:s)?:\/\/)?(?:www\.)?(?:m\.)?(?:youtu\.be\/|youtube\.com\/(?:(?:watch)?\?(?:.*&)?v(?:i)?=|(?:user|channel|c)\/))([^\?&\"'>]+)/", $url, $matches);
 
     if ($result) {
         $yt_id = trim($matches[1]);
@@ -42,6 +42,11 @@ function is_youtube_user($url){
     return ( preg_match("!user/([^\?&\"'>]+)!i", $url) );
 }
 
+function is_confirmed_user($url){
+    return ( preg_match("!c/([^\?&\"'>]+)!i", $url) );
+}
+
+
 function get_youtube_subscriber_count( $url = null ){
 
     if ( !$url ) return false;
@@ -50,23 +55,59 @@ function get_youtube_subscriber_count( $url = null ){
 
     $yt_id = get_youtube_id_from_url( $url );
 
-    if ( is_youtube_channel( $url )){
+    if ( is_youtube_channel( $url ) ){
 
         $api_request = urldecode("https://www.googleapis.com/youtube/v3/channels?part=statistics&id=".$yt_id."&key=".YOUTUBE_API_KEY);
+        $data = wp_remote_get( $api_request );
 
-    }elseif ( is_youtube_user( $url )){
+        if ( is_array($data) && $data['response']['code'] !== 404 ) {
+
+            $api_response = json_decode($data['body'], true);
+
+            return $api_response['items'][0]['statistics']['subscriberCount'];
+
+        }
+    }elseif ( is_youtube_user( $url ) ){
 
         $api_request = urldecode("https://www.googleapis.com/youtube/v3/channels?part=statistics&forUsername=".$yt_id."&key=".YOUTUBE_API_KEY);
+        $data = wp_remote_get( $api_request );
 
-    }
+        if ( is_array($data) && $data['response']['code'] !== 404 ) {
 
-    $data = wp_remote_get( $api_request );
+            $api_response = json_decode($data['body'], true);
 
-    if ( is_array($data) && $data['response']['code'] !== 404 ) {
+            return $api_response['items'][0]['statistics']['subscriberCount'];
 
-        $api_response = json_decode($data['body'], true);
+        }
 
-        return $api_response['items'][0]['statistics']['subscriberCount'];
+    } elseif ( is_confirmed_user( $url ) ){
+
+        $api_request_for_channel = urldecode("https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q=".$yt_id."&type=channel&key=".YOUTUBE_API_KEY);
+
+        $data_for_channel = wp_remote_get( $api_request_for_channel );
+
+        if ( is_array($data_for_channel) && $data_for_channel['response']['code'] !== 404 ) {
+
+            $api_response_for_channel = json_decode($data_for_channel['body'], true);
+
+            $channel_id = $api_response_for_channel['items'][0]['id']['channelId'];
+
+            if ( $channel_id) {
+
+                $api_request = urldecode("https://www.googleapis.com/youtube/v3/channels?part=statistics&id=".$channel_id."&key=".YOUTUBE_API_KEY);
+
+                $data = wp_remote_get( $api_request );
+
+                if ( is_array($data) && $data['response']['code'] !== 404 ) {
+
+                    $api_response = json_decode($data['body'], true);
+
+                    return $api_response['items'][0]['statistics']['subscriberCount'];
+
+                }
+            }
+
+        }
 
     }
 
@@ -76,15 +117,16 @@ function aj_get_youtube_subscriber_count( ){
 
     $url = esc_url_raw($_POST['link']);
 
-    if ( ! is_youtube($url)) wp_send_json_error( array('error'=> 'Not valid YouTube url') );
+  //  if ( ! is_youtube($url)) wp_send_json_error( array('error'=> 'Not valid YouTube url') );
 
-    if ( !is_youtube_channel($url) && ! is_youtube_user($url))  wp_send_json_error( array('error'=> 'YouTube url should be a channel or user link') );
+   // if ( !is_youtube_channel($url) && !is_youtube_user($url) && !is_confirmed_user($url))  wp_send_json_error( array('error'=> 'YouTube url should be a channel or user link') );
 
     $count = get_youtube_subscriber_count( $url );
 
-    if ( !$count ) wp_send_json_error( array('error'=> 'Can\'t get number of subscribers. You must use a proper channel or user link'));
+  //  if ( !$count ) wp_send_json_error( array('error'=> 'Can\'t get number of subscribers. You must use a proper channel or user link'));
 
-    else wp_send_json_success(array('count'=>$count));
+   // else
+    wp_send_json_success(array('count'=>$count));
 
 }
 

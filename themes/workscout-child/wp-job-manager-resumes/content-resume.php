@@ -15,7 +15,13 @@ if($resume_photo_style){
     <a class="photo-<?php echo $photo_class?>" href="<?php the_permalink(); ?>">
 		<?php the_candidate_photo(); ?>
 		<div class="resumes-content">
-			<h4><?php the_title(); ?> <?php the_candidate_title( '<span>', '</span> ' ); ?></h4>
+            <?php    $portfolio_name = get_post_meta($post->ID, '_portfolio_name', true); ?>
+			<h4><?php the_title(); ?> <span><?php echo $portfolio_name; ?></span></h4>
+            <?php if ( $category ) : ?>
+                <div class="resume-category">
+                    <?php echo $category ?>
+                </div>
+            <?php endif; ?>
 			<span><i class="fa fa-map-marker"></i> <?php the_candidate_location( false ); ?></span>
 			<?php $rate = get_post_meta( $post->ID, '_rate_min', true );
 			if(!empty($rate)) { ?>

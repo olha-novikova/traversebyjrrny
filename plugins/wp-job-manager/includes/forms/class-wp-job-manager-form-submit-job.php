@@ -53,6 +53,7 @@ class WP_Job_Manager_Form_Submit_Job extends WP_Job_Manager_Form {
 	public function __construct() {
 		add_action( 'wp', array( $this, 'process' ) );
 
+
 		$this->steps  = (array) apply_filters( 'submit_job_steps', array(
 			'submit' => array(
 				'name'     => __( 'Submit Details', 'wp-job-manager' ),
@@ -84,6 +85,7 @@ class WP_Job_Manager_Form_Submit_Job extends WP_Job_Manager_Form {
 
 		$this->job_id = ! empty( $_REQUEST[ 'job_id' ] ) ? absint( $_REQUEST[ 'job_id' ] ) : 0;
 
+
 		if ( ! job_manager_user_can_edit_job( $this->job_id ) ) {
 			$this->job_id = 0;
 		}
@@ -111,6 +113,7 @@ class WP_Job_Manager_Form_Submit_Job extends WP_Job_Manager_Form {
 				$this->step   = 0;
 			}
 		}
+
 	}
 
 	/**
@@ -433,13 +436,16 @@ class WP_Job_Manager_Form_Submit_Job extends WP_Job_Manager_Form {
 			// Get posted values
 			$values = $this->get_posted_fields();
 
+
 			if ( empty( $_POST['submit_job'] ) ) {
 				return;
 			}
 
-			// Validate required
+            // Validate required
 			if ( is_wp_error( ( $return = $this->validate_fields( $values ) ) ) ) {
+
 				throw new Exception( $return->get_error_message() );
+
 			}
 
 			// Account creation

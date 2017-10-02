@@ -5,7 +5,7 @@
  * @package WordPress
  * @subpackage workscout
  * @since workscout 1.0
- *  style="background-image: url(http://traversebyjrrny.com/wp-content/uploads/2017/04/banner1.jpg)"
+ *  style="background-image: url(http://traverseinfluence.com/wp-content/uploads/2017/04/banner1.jpg)"
  */
 
 get_header(); ?>
@@ -13,12 +13,16 @@ get_header(); ?>
 
 <div id="banner22" <?php echo workscout_get_search_header();?>  class="workscout-search-banner <?php if( $fancy_header ) { ?> with-transparent-header parallax background <?php } ?>" >
     <div class="container">
-        <div class="sixteen columns">
+        <div class="sixteen ">
 
             <div class="search-container sc-jobs">
                 <div class="introtext"><h2>WHERE BRANDS AND TRAVEL <br>INFLUENCERS CONNECT </h2>
 
-                    <div class="jrrny">JRRNY brings you Traverse - <br>the intersection of great brands <br> and compelling travel influencers. </div>
+                    <div class="jrrny">JRRNY brings you Traverse - <br>the intersection of great brands <br> and compelling travel influencers.<br>
+                        <?php if(!is_user_logged_in()) { ?>
+                            <a href="#signup-dialog" class="small-dialog popup-with-zoom-anim button centered"><i class="fa fa-user"></i> SIGN UP</a>
+                        <?php } ?>
+                    </div>
                 </div>
                 <!-- Form -->
                 <!--h2><?php esc_html_e('Find Job','workscout') ?></h2-->
@@ -78,33 +82,33 @@ get_header(); ?>
 </div>
 
 <div class="search-container1 sc-jobs how-it-work" style="background-image: url(http://jrrny.com/wp-content/uploads/2017/08/fineas-anton-108019-e1503911499206.jpg);">
+
     <div class="container">
-        <div class="introtext how-it-work-wrap" >
+        <div class="how-it-work-wrap" >
             <div class="cxs"><h2>HOW DOES IT WORK?</h2></div>
             <!--jrrnyb-->
-            <div class="how-it-work-content">
+            <div class="how-it-work-content jrrny">
                 <h3>Brands:</h3>
                 <p>
                     <strong>Free to join! </strong><br>
                     Choose from thousands of influencers from small to large.<br>
                     Assign influencers based on your choice.<br>
                     Payment managed through our integrated escrow services.<br>
-
-                    <?php if(!is_user_logged_in()) { ?>
-                            <a class="small-dialog popup-with-zoom-anim button " href="#signup-dialog">Sign up</a>
-                    <?php } ?>
                 </p>
-                <br>
+            </div>
+            <div class="how-it-work-content jrrny">
                 <h3>Influencers:</h3>
                 <p>
                     <strong>Free to join!</strong> <br>
                     Choose the projects you want from dozens of brands and make money from your influence.<br>
-                    <?php if(!is_user_logged_in()) { ?>
-                        <a class="small-dialog popup-with-zoom-anim button " href="#signup-dialog">Sign up</a>
-                    <?php } ?>
                 </p>
-
             </div>
+            <div class="clear"></div>
+            <?php if(!is_user_logged_in()) { ?>
+                <a class="small-dialog popup-with-zoom-anim button centered" href="#signup-dialog">Sign up</a>
+            <?php } ?>
+
+         </div>
                     <!-- Form -->
                     <!--h2><?php esc_html_e('Find Job','workscout') ?></h2-->
                     <!--form method="GET" action="<?php echo get_permalink(get_option('job_manager_jobs_page_id')); ?>">
@@ -164,7 +168,7 @@ get_header(); ?>
         <p>Great Exposure for Brands &amp; Influencers</p>
     </div>
 </div>
-<div class="lastimg" style="background-image: url(http://traversebyjrrny.com/wp-content/uploads/2017/04/banner3.jpg); " >
+<div class="lastimg" style="background-image: url(http://traverseinfluence.com/wp-content/uploads/2017/04/banner3.jpg); " >
 	<div class="container">
 		<div class="wjarrny">
 			<h2>WHAT IS JRRNY?</h2>

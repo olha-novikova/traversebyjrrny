@@ -93,7 +93,7 @@ do_action( 'woocommerce_before_edit_account_form' );?>
 
     <p>
 		<?php wp_nonce_field( 'save_account_details' ); ?>
-		<input type="submit" class="woocommerce-Button button" name="save_account_details" value="<?php esc_attr_e( 'Save changes', 'woocommerce' ); ?>" />
+		<input type="submit" class="woocommerce-Button button" id="save_account_details" name="save_account_details" value="<?php esc_attr_e( 'Save changes', 'woocommerce' ); ?>" />
 		<input type="hidden" name="action" value="save_account_details" />
 	</p>
 

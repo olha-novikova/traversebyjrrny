@@ -60,7 +60,7 @@ if(!empty($header_image)) { ?>
 	</div>
 
 
-<?php 
+<?php
 
 $layout = Kirki::get_option( 'workscout', 'pp_job_layout' ); ?>
 <div class="container <?php echo esc_attr($layout); ?>">
@@ -84,8 +84,8 @@ $layout = Kirki::get_option( 'workscout', 'pp_job_layout' ); ?>
 			<?php if ( get_the_company_name() ) { ?>
 				<!-- Company Info -->
 				<div class="company-info <?php echo ($logo_position == 'left') ? 'left-company-logo' : 'right-company-logo' ;?>" itemscope itemtype="http://data-vocabulary.org/Organization">
-					<?php if(class_exists('Astoundify_Job_Manager_Companies')) { echo workscout_get_company_link(the_company_name('','',false)); } ?>
-						<?php ($logo_position == 'left') ? the_company_logo() : the_company_logo('medium'); ?></a>
+                    <?php if(class_exists('Astoundify_Job_Manager_Companies')) { echo workscout_get_company_link(the_company_name('','',false)); } ?>
+						<?php get_company_meta_logo($post->ID); ?></a>
 					<?php if(class_exists('Astoundify_Job_Manager_Companies')) { echo "</a>"; } ?>
 					<div class="content">
 						<h4>
@@ -171,7 +171,7 @@ $layout = Kirki::get_option( 'workscout', 'pp_job_layout' ); ?>
 		<?php dynamic_sidebar( 'sidebar-job-before' ); ?>
 		<!-- Sort by -->
 		<div class="widget">
-			<h4><?php esc_html_e('Job Overview','workscout') ?></h4>
+			<h4><?php esc_html_e('Listing Overview','workscout') ?></h4>
 
 			<div class="job-overview">
 				<?php do_action( 'single_job_listing_meta_before' ); ?>
@@ -264,6 +264,27 @@ $layout = Kirki::get_option( 'workscout', 'pp_job_layout' ); ?>
 							<span>
 							<?php  
 							if ( $salary ) { echo get_workscout_currency_symbol();  echo esc_html( $salary ); } ?> 
+                
+ <!-- budget redundancy -->                
+                
+                <?php } ?>
+					
+					<?php 
+					$salary = get_post_meta( $post->ID, 'Budget_for_the_influencer', true );
+					//$salary_max = get_post_meta( $post->ID, '_salary_max', true );
+					 if ( $salary || $salary_max  ) { 
+						
+					 	?>
+					<li>
+						<i class="fa fa-money"></i>
+						<div>
+							<strong><?php esc_html_e('Budget:','workscout'); ?></strong>
+							<span>
+							<?php  
+							if ( $salary ) { echo get_workscout_currency_symbol();  echo esc_html( $salary ); } ?> 
+   
+              <!-- End of Budget Redundancy --> 
+                
 							<?php if ( $salary_max ) {  ?> - <?php echo get_workscout_currency_symbol();echo esc_html($salary_max); } ?></span>
 						</div>
 					</li>

@@ -81,6 +81,7 @@ $layout = Kirki::get_option( 'workscout', 'pp_job_layout' ); ?>
 			<?php if ( get_the_company_name() ) { ?>
 				<!-- Company Info -->
 				<div class="company-info <?php echo ($logo_position == 'left') ? 'left-company-logo' : 'right-company-logo' ;?>" itemscope itemtype="http://data-vocabulary.org/Organization">
+
 					<?php if(class_exists('Astoundify_Job_Manager_Companies')) { echo workscout_get_company_link(the_company_name('','',false)); } ?>
 						<?php ($logo_position == 'left') ? the_company_logo() : the_company_logo('medium'); ?></a>
 					<?php if(class_exists('Astoundify_Job_Manager_Companies')) { echo "</a>"; } ?>

@@ -60,7 +60,7 @@ wp_enqueue_script( 'wp-resume-manager-resume-submission' );
 			<input type="hidden" name="resume_id" value="<?php echo esc_attr( $resume_id ); ?>" />
 			<input type="hidden" name="job_id" value="<?php echo esc_attr( $job_id ); ?>" />
 			<input type="hidden" name="step" value="<?php echo esc_attr( $step ); ?>" />
-			<input type="submit" name="submit_resume" class="button big" value="You're almost there" />
+			<input type="submit" name="submit_resume" class="button big" value="save and preview" />
 		</p>
 
 	<?php else : ?>

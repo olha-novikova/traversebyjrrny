@@ -53,7 +53,7 @@ if ( $order ) : ?>
             }
 
             if (!empty($submit_job_page)) {  ?>
-                <a href="<?php echo get_permalink($submit_job_page) ?>" class="button"><?php esc_html_e('Create Another Listings','workscout'); ?></a>
+                <a href="<?php echo get_permalink($submit_job_page) ?>" class="button"><?php esc_html_e('Create Another Listing','workscout'); ?></a>
             <?php
 
             }

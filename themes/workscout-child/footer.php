@@ -84,8 +84,6 @@ jQuery("#job_preview_submit_button").click(function(){
 
 });
 
-
-
 jQuery('.archive ul.products .plan-price h3 a').removeAttr('href');
 jQuery('.archive ul.products .plan-features a.button').remove();
 

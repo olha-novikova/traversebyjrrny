@@ -130,10 +130,6 @@ class WP_Job_Manager_Simple_Paid_Listings extends WPJM_Updater {
 
 			$job = get_post( $this->job_id );
 
-            $budget= intval(get_post_meta($job->ID, '_targeted_budget', true));
-
-            $amount = round($budget*0.5, 2);
-
 			if ( $job->post_status == 'preview' ) {
 				$update_job                = array();
 				$update_job['ID']          = $job->ID;
@@ -141,9 +137,8 @@ class WP_Job_Manager_Simple_Paid_Listings extends WPJM_Updater {
 				wp_update_post( $update_job );
 			}
 
-			if ( $this->gateway->pay_for_listing( $this->job_id, $amount ) ) {
-
-                update_field('Budget_for_the_influencer',$budget,$job->ID);
+			if ( $this->gateway->pay_for_listing( $this->job_id ) ) {
+				// If pay for listing returns true we can proceed, otherwise stay in preview mode
 				$form->next_step();
 			}
 		}

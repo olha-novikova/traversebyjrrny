@@ -9,9 +9,9 @@
 
 get_header(); ?>
 <?php while ( have_posts() ) : the_post(); ?>
-<?php if ( resume_manager_user_can_view_resume( $post->ID ) ) : 
-
-	$resume_photo_style = Kirki::get_option( 'workscout','pp_resume_rounded_photos','off' );
+<?php if ( resume_manager_user_can_view_resume( $post->ID ) ) :
+        $categories = get_the_resume_categories();
+        $resume_photo_style = Kirki::get_option( 'workscout','pp_resume_rounded_photos','off' );
 
 	if($resume_photo_style){
 		$photo_class = "square";
@@ -31,8 +31,17 @@ get_header(); ?>
 					<?php the_candidate_photo('workscout-resume', get_template_directory_uri().'/images/candidate.png'); ?>
 
 					<div class="resumes-content">
-						<h4><?php the_title(); ?> <span><?php the_candidate_title(); ?></span></h4>
-						<span class="icons"><i class="fa fa-map-marker"></i><?php the_candidate_location(); ?></span>
+                        <?php    $portfolio_name = get_post_meta($post->ID, '_portfolio_name', true); ?>
+						<h4><?php the_title(); ?> <span><?php echo $portfolio_name; ?></span></h4>
+                        <div class="resume-posted-column <?php if ( $category ) : ?>resume-meta<?php endif; ?>">
+                            <?php if ( $categories ) :
+                                foreach( $categories as $category){?>
+                                <span class="resume-category">
+                                    <?php echo $category ?>
+                                </span>
+                            <?php } endif; ?>
+                        </div>
+                        <span class="icons"><i class="fa fa-map-marker"></i><?php the_candidate_location(); ?></span>
 						<?php $rate = get_post_meta( $post->ID, '_rate_min', true );
 						if(!empty($rate)) { ?>
 							<span class="icons"><i class="fa fa-money"></i> <?php  echo get_workscout_currency_symbol();  echo get_post_meta( $post->ID, '_rate_min', true ); ?> <?php esc_html_e('/ hour','workscout') ?></span>

@@ -50,16 +50,6 @@ do_action( 'woocommerce_before_account_navigation' );
             home_url('/my-pitches')
         );
     endif;
-    /*bookmarks*/
-  /*  $bookmarks_page_id = ot_get_option('pp_bookmarks_page');
-    $pagename = the_slug($bookmarks_page_id);
-    $class = ( $wp->query_vars[ 'pagename' ]== $pagename )?'is-active':'';
-    if ( (in_array( 'candidate', (array) $user->roles ) || in_array( 'administrator', (array) $user->roles )) && !empty($bookmarks_page_id) ) :
-        printf( __( '<li class="woocommerce-MyAccount-navigation-link %s"><a href="%s"> My Bookmarks </a></li>', 'workscout' ),
-            $class,
-            get_permalink($bookmarks_page_id)
-        );
-    endif;*/
 
 	?>
         <?php foreach ( wc_get_account_menu_items() as $endpoint => $label ) : ?>
@@ -148,12 +138,10 @@ do_action( 'woocommerce_before_account_navigation' );
 									<?php else : ?>
 										<?php echo esc_html($job->post_title); ?> <small>(<?php the_job_status( $job ); ?>)</small>
 									<?php endif; ?>
-								
-									
 								<?php elseif ('date' === $key ) : ?>
 									<?php echo date_i18n( get_option( 'date_format' ), strtotime( $job->post_date ) ); ?>	
 								<?php elseif ('expires' === $key ) : ?>
-									<?php echo $job->_job_expires ? date_i18n( get_option( 'date_format' ), strtotime( $job->_job_expires ) ) : '&ndash;'; ?>
+									<?php echo  $job->_job_expires ? date_i18n( get_option( 'date_format' ), strtotime( $job->_job_expires ) )."dfdfdf" : '&ndash;'; ?>
 								<?php elseif ('filled' === $key ) : ?>
 									<?php echo is_position_filled( $job ) ? '&#10004;' : '&ndash;'; ?>
 								<?php elseif ('applications' === $key ) : ?>
@@ -167,45 +155,44 @@ do_action( 'woocommerce_before_account_navigation' );
 							</td>
 						<?php endforeach; ?>
 							<td class="action">
+                                <?php
+                                    $actions = array();
+                                    switch ( $job->post_status ) {
+                                        case 'publish' :
+                                            $actions['edit'] = array( 'label' => esc_html__( 'Edit', 'workscout' ), 'nonce' => false );
 
-									<?php
-										$actions = array();
+                                            if ( is_position_filled( $job ) ) {
+                                                $actions['mark_not_filled'] = array( 'label' => esc_html__( 'Mark not filled', 'workscout' ), 'nonce' => true );
+                                            } else {
+                                                $actions['mark_filled'] = array( 'label' => esc_html__( 'Mark filled', 'workscout' ), 'nonce' => true );
+                                            }
+                                            break;
+                                        case 'expired' :
+                                            /*if ( job_manager_get_permalink( 'submit_job_form' ) ) {
+                                                $actions['relist'] = array( 'label' => esc_html__( 'Relist', 'workscout' ), 'nonce' => true );
+                                            }*/
+                                            if ( $count = get_job_application_count( $job->ID ) == 0 )
+                                                $actions['reexpiries'] = array( 'label' => esc_html__( 'Prolong', 'workscout' ), 'nonce' => true );
+                                            break;
+                                        case 'pending_payment' :
+                                        case 'pending' :
+                                            if ( job_manager_user_can_edit_pending_submissions() ) {
+                                                $actions['edit'] = array( 'label' => esc_html__( 'Edit', 'workscout' ), 'nonce' => false );
+                                            }
+                                        break;
+                                    }
 
-										switch ( $job->post_status ) {
-											case 'publish' :
-												$actions['edit'] = array( 'label' => esc_html__( 'Edit', 'workscout' ), 'nonce' => false );
+                                    $actions['delete'] = array( 'label' => esc_html__( 'Delete', 'workscout' ), 'nonce' => true );
+                                    $actions           = apply_filters( 'job_manager_my_job_actions', $actions, $job );
 
-												if ( is_position_filled( $job ) ) {
-													$actions['mark_not_filled'] = array( 'label' => esc_html__( 'Mark not filled', 'workscout' ), 'nonce' => true );
-												} else {
-													$actions['mark_filled'] = array( 'label' => esc_html__( 'Mark filled', 'workscout' ), 'nonce' => true );
-												}
-												break;
-											case 'expired' :
-												if ( job_manager_get_permalink( 'submit_job_form' ) ) {
-													$actions['relist'] = array( 'label' => esc_html__( 'Relist', 'workscout' ), 'nonce' => true );
-												}
-												break;
-											case 'pending_payment' :
-											case 'pending' :
-												if ( job_manager_user_can_edit_pending_submissions() ) {
-													$actions['edit'] = array( 'label' => esc_html__( 'Edit', 'workscout' ), 'nonce' => false );
-												}
-											break;
-										}
-
-										$actions['delete'] = array( 'label' => esc_html__( 'Delete', 'workscout' ), 'nonce' => true );
-										$actions           = apply_filters( 'job_manager_my_job_actions', $actions, $job );
-
-										foreach ( $actions as $action => $value ) {
-											$action_url = add_query_arg( array( 'action' => $action, 'job_id' => $job->ID ) );
-											if ( $value['nonce'] ) {
-												$action_url = wp_nonce_url( $action_url, 'job_manager_my_job_actions' );
-											}
-											echo '<a href="' . esc_url( $action_url ) . '" class="job-dashboard-action-' . esc_attr( $action ) . '">' .workscout_manage_action_icons($action) . esc_html( $value['label'] ) . '</a>';
-										}
-									?>
-								
+                                    foreach ( $actions as $action => $value ) {
+                                        $action_url = add_query_arg( array( 'action' => $action, 'job_id' => $job->ID ) );
+                                        if ( $value['nonce'] ) {
+                                            $action_url = wp_nonce_url( $action_url, 'job_manager_my_job_actions' );
+                                        }
+                                        echo '<a href="' . esc_url( $action_url ) . '" class="job-dashboard-action-' . esc_attr( $action ) . '">' .workscout_manage_action_icons_custom($action) . esc_html( $value['label'] ) . '</a>';
+                                    }
+                                ?>
 							</td>
 					</tr>
 				<?php endforeach; ?>

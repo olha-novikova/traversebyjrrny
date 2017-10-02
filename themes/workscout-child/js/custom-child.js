@@ -1,5 +1,23 @@
 ( function( $ ) {
 
+    $('#save_account_details').click(  function(e) {
+        e.preventDefault();
+
+        var form = $(this).closest('.woocommerce-EditAccountForm.edit-account');
+        var inputs =  form.find("input[type='text']");
+
+        inputs.each(function(){
+            var key = $(this).attr('id');
+            var val = $(this).val();
+            if ( val ){
+                $(this).val(val.replace(/(^\w+:|^)\/\//, ''));
+            }
+
+        });
+
+        form.submit();
+
+    });
 
     $(document).on( 'submit', '.small-dialog-content.woo-reg-box form.register', function(e) {
         e.preventDefault();
@@ -43,6 +61,8 @@
         });
 
     });
+
+
 
     $(document).on( 'submit', '.small-dialog-content form#custom-campaign-form', function(e) {
         var magnificPopup = $.magnificPopup.instance;
@@ -102,6 +122,7 @@
     });
 
     $( document ).ready( function() {
+        $('.fieldset-sync_social input[type="checkbox"]').after('<span class="instead-lable">Yes, sync the information</span>');
 
         // prelist page events
         $('.social_products_section').find('.products li').click(function (){
@@ -268,23 +289,24 @@
             }
         });
 
-        var facebook_link   = $('input#facebook_link');
-        var instagram_link  = $('input#instagram_link');
-        var twitter_link    = $('input#twitter_link');
-        var youtube_link    = $('input#youtube_link');
-        var jrrny_link      = $('input#jrrny_link');
-        var candidate_title      = $('input#candidate_title');
+        var facebook_link           = $('input#facebook_link');
+        var instagram_link          = $('input#instagram_link');
+        var twitter_link            = $('input#twitter_link');
+        var youtube_link            = $('input#youtube_link');
+        var jrrny_link              = $('input#jrrny_link');
+        var candidate_title         = $('input#candidate_title');
         var influencer_website      = $('input#influencer_website');
         var estimated_monthly_visitors      = $('input#estimated_monthly_visitors');
         var influencer_number      = $('input#influencer_number');
-        var influencer_location      = $('input#candidate_location');
-        var short_influencer_bio      = $('input#short_influencer_bio');
-        var candidate_photo      = $('input#candidate_photo');
+        var influencer_location    = $('input#candidate_location');
+        var short_influencer_bio   = $('textarea#short_influencer_bio');
+        var candidate_photo        = $('input#candidate_photo');
 
         $('input[name="sync_social"]').on('change', function(){
             var $this = $(this);
 
-            if ($this.val() == '1') {
+            if ($this.is(':checked')) {
+
                 var data = {
                    // user_id: $url,
                     action: 'aj_sync_social'
@@ -298,21 +320,37 @@
                     success: function( response ) {
                         if(response.success) {
                             $.each(response.data, function(key, value){
-                                if (key == 'youtube_link') {youtube_link.attr('value',value); update_yotTube();}
-                                if (key == 'fb_link') {facebook_link.attr('value',value);}
-                                if (key == 'insta_link') {instagram_link.attr('value',value);update_instagram();}
-                                if (key == 'twitter_link') {twitter_link.attr('value',value);  update_twitter();}
-                                if (key == 'jrrny_link') {jrrny_link.attr('value',value);  update_twitter();}
-                                if (key == 'candidate_title') {candidate_title.attr('value',value);}
-                                if (key == 'influencer_website') {influencer_website.attr('value',value);}
-                                if (key == 'estimated_monthly_visitors') {estimated_monthly_visitors.attr('value',value);}
-                                if (key == 'influencer_number') {influencer_number.attr('value',value);}
-                                if (key == 'influencer_location') {influencer_location.attr('value',value);}
-                                if (key == 'short_influencer_bio') {short_influencer_bio.text(value);}
-                                if (key == 'candidate_photo') {
-                                  //  $('.fieldset-candidate_photo').find('.job-manager-uploaded-files')
-                                    candidate_photo.attr('value',value);
+                                if (key == 'youtube_link') {youtube_link.attr('value',value); update_yotTube();youtube_link.addClass('sync');}
+                                if (key == 'fb_link') {facebook_link.attr('value',value);facebook_link.addClass('sync')}
+                                if (key == 'insta_link') {instagram_link.attr('value',value);update_instagram();instagram_link.addClass('sync')}
+                                if (key == 'twitter_link') {twitter_link.attr('value',value);  update_twitter();twitter_link.addClass('sync')}
+                                if (key == 'jrrny_link') {jrrny_link.attr('value',value);  update_twitter();jrrny_link.addClass('sync')}
+                                if (key == 'candidate_title') {candidate_title.attr('value',value);candidate_title.addClass('sync')}
+                                if (key == 'influencer_website') {influencer_website.attr('value',value);influencer_website.addClass('sync')}
+                                if (key == 'estimated_monthly_visitors') {estimated_monthly_visitors.attr('value',value);estimated_monthly_visitors.addClass('sync')}
+                                if (key == 'influencer_number') {influencer_number.attr('value',value);influencer_number.addClass('sync')}
+                                if (key == 'influencer_location') {influencer_location.attr('value',value);influencer_location.addClass('sync')}
+                                if (key == 'short_influencer_bio') {
+                                    short_influencer_bio.text(value);
+                                    var $iframe = $('#short_influencer_bio_ifr');
+                                    $iframe.ready(function() {
+                                        $iframe.contents().find("body").html(value);
+                                        $iframe.contents().find("body").attr('style', 'color: green');
+                                    });
                                 }
+
+                             /*   if (key == 'candidate_photo') {
+
+                                    $('.job-manager-uploaded-files').html('');
+
+                                    $('.job-manager-uploaded-files').after('<div class="hid_im_prev"><img class="from_profile" src="'+value+'" alt=""><a href="#" class="rmv_im">[remove]</a></div>');
+                                    $('.job-manager-uploaded-files').after('<input type="hidden" name="candidate_photo_alt" class="hidden_img" value="'+value+'">');
+
+                                    $('.rmv_im').on('click', function(){
+                                        $('.hid_im_prev').remove();
+                                        $('.hidden_img').remove();
+                                    });
+                                }*/
 
 
                             });
@@ -324,14 +362,38 @@
                 });
 
             }else{
-                youtube_link.attr('value','');
-                facebook_link.attr('value','');
-                instagram_link.attr('value','');
-                twitter_link.attr('value','');
+
                 $('.count_subcr').remove();
+                youtube_link.removeClass('sync');
+                facebook_link.removeClass('sync');
+                instagram_link.removeClass('sync');
+                twitter_link.removeClass('sync');
+                jrrny_link.removeClass('sync');
+                candidate_title.removeClass('sync');
+                influencer_website.removeClass('sync');
+                estimated_monthly_visitors.removeClass('sync');
+                influencer_number.removeClass('sync');
+                influencer_location.removeClass('sync');
+
+                var $iframe = $('#short_influencer_bio_ifr');
+
+                $iframe.ready(function() {
+                    $iframe.contents().find("body").removeAttr('style');
+                });
+
+               /* $('.hid_im_prev').remove();
+                $('.hidden_img').remove();*/
             }
 
         });
+
+     /*   $('.file-candidate_photo.wp-job-manager-file-upload').fileupload({
+            change: function(){
+                $('.hid_im_prev').remove();
+                $('.hidden_img').remove();
+            }
+
+        });*/
 
     } );
 
