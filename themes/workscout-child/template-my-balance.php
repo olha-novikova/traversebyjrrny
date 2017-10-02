@@ -151,6 +151,12 @@ $class = ($layout !="full-width") ? "eleven columns" : "sixteen columns"; ?>
                                     <li class="woocommerce-MyAccount-navigation-link">
                                         <a href="<?php echo esc_url( wc_get_account_endpoint_url( $endpoint ) ); ?>"><?php echo esc_html( ucwords($label) ); ?></a>
                                     </li>
+                                    <?php
+                                    if ( $endpoint == 'edit-account') { ?>
+                                        <li class="woocommerce-MyAccount-navigation-link">
+                                            <a href="<?php echo esc_url( wc_get_account_endpoint_url( $endpoint ) ).'?password=change'; ?>"><?php echo esc_html( ucwords('Change Password') ); ?></a>
+                                        </li>
+                                    <?php } ?>
                                 <?php } ?>
                             <?php endforeach;?>
                         </ul>
@@ -207,7 +213,7 @@ $class = ($layout !="full-width") ? "eleven columns" : "sixteen columns"; ?>
                                 <tr>
                                     <th colspan="3">Available cash out</th>
                                     <th><?php echo $currency.$available_cash;?></th>
-                                    <th colspan="2"><a class="small-dialog popup-with-zoom-anim button" href="#cash-out-dialog">Cash Out</a> <a class="small-dialog popup-with-zoom-anim button" href="#cash-out-dialog-stripe">Cash Out (Stripe Use)</a></th>
+                                    <th colspan="2"><a class="small-dialog popup-with-zoom-anim button" href="#cash-out-dialog">Cash Out</a>
                                 </tr>
                                 </thead>
 
@@ -237,14 +243,6 @@ $class = ($layout !="full-width") ? "eleven columns" : "sixteen columns"; ?>
                                             </div>
                                         </div>
                                     </form>
-                                </div>
-                            </div>
-                            <div id="cash-out-dialog-stripe" class="small-dialog zoom-anim-dialog mfp-hide">
-                                <div class="small-dialog-headline">
-                                    <h2><?php esc_html_e('Cash Out','workscout'); ?></h2>
-                                </div>
-                                <div class="small-dialog-content">
-                                    <?php echo do_shortcode('[cashout_form]'); ?>
                                 </div>
                             </div>
                         </div>

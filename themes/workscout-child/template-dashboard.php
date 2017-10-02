@@ -165,9 +165,12 @@ $class = ($layout !="full-width") ? "eleven columns woocommerce-account" : "sixt
                             esc_html( ucwords($label) )
                         );
                         ?>
-<!--                        <li class="woocommerce-MyAccount-navigation-link">-->
-<!--                            <a href="--><?php //echo esc_url( wc_get_account_endpoint_url( $endpoint ) ); ?><!--">--><?php //echo esc_html( $label ); ?><!--</a>-->
-<!--                        </li>-->
+                        <?php
+                        if ( $endpoint == 'edit-account') { ?>
+                            <li class="woocommerce-MyAccount-navigation-link">
+                                <a href="<?php echo esc_url( wc_get_account_endpoint_url( $endpoint ) ).'?password=change'; ?>"><?php echo esc_html( ucwords('Change Password') ); ?></a>
+                            </li>
+                        <?php } ?>
                     <?php } ?>
                 <?php endforeach;?>
             </ul>

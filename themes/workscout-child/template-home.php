@@ -18,12 +18,7 @@ get_header(); ?>
             <div class="search-container sc-jobs">
                 <div class="introtext"><h2>WHERE BRANDS AND TRAVEL <br>INFLUENCERS CONNECT </h2>
 
-                    <div class="jrrny">JRRNY brings you Traverse - <br>the intersection of great brands <br> and compelling travel influencers.<br>
-                        <?php if(!is_user_logged_in()) { ?>
-                            <blockquote style=" margin-top:10px">You must be registered on jrrny to participate</blockquote>
-                            <a href="#signup-dialog" class="small-dialog popup-with-zoom-anim button centered"><i class="fa fa-user"></i> SIGN UP</a>
-                        <?php } ?>
-                    </div>                    
+                    <div class="jrrny">JRRNY brings you Traverse - <br>the intersection of great brands <br> and compelling travel influencers. </div>
                 </div>
                 <!-- Form -->
                 <!--h2><?php esc_html_e('Find Job','workscout') ?></h2-->
@@ -88,28 +83,26 @@ get_header(); ?>
             <div class="cxs"><h2>HOW DOES IT WORK?</h2></div>
             <!--jrrnyb-->
             <div class="how-it-work-content">
-                <h3>You’re a brand.</h3>
+                <h3>Brands:</h3>
                 <p>
-                    You’re awesome. You need to get the word out. How do you want to do it? You simply develop an idea, and post a paid content creation request on Traverse,
-                    where a member of our global network of experienced travel influencers can accept the offer, and bring your idea to life.
-                    That content is then shared on www.jrrny.com, as well as other popular social platforms.
+                    <strong>Free to join! </strong><br>
+                    Choose from thousands of influencers from small to large.<br>
+                    Assign influencers based on your choice.<br>
+                    Payment managed through our integrated escrow services.<br>
+
+                    <?php if(!is_user_logged_in()) { ?>
+                            <a class="small-dialog popup-with-zoom-anim button " href="#signup-dialog">Sign up</a>
+                    <?php } ?>
                 </p>
                 <br>
-                <h3>You’re an influencer.</h3>
+                <h3>Influencers:</h3>
                 <p>
-                    People look to you to show them original photos of the Himalayas, or the best brunch spots in New Orleans.
-                    You join Traverse, and thumb through requests from stellar brands who want to work with imaginative wanderlusters like you to create compelling content.
-                    You accept the offer, you create, you get paid. It’s that simple.
+                    <strong>Free to join!</strong> <br>
+                    Choose the projects you want from dozens of brands and make money from your influence.<br>
+                    <?php if(!is_user_logged_in()) { ?>
+                        <a class="small-dialog popup-with-zoom-anim button " href="#signup-dialog">Sign up</a>
+                    <?php } ?>
                 </p>
-
-                <?php if(!is_user_logged_in()) { ?>
-                    <div class="findCont">
-                        <h2>Get Started Today</h2>
-                        <ul class="twoBtns">
-                            <li><a class="small-dialog popup-with-zoom-anim button centered" href="#signup-dialog">I'm a Brand</a></li><li><a class="small-dialog popup-with-zoom-anim button centered" href="#signup-dialog">I'm an Influencer</a></li>
-                        </ul>
-                    </div>
-                <?php } ?>
 
             </div>
                     <!-- Form -->
@@ -176,7 +169,7 @@ get_header(); ?>
 		<div class="wjarrny">
 			<h2>WHAT IS JRRNY?</h2>
 			<p>JRRNY is a social travel platform and media company founded in 2015, and based in Seattle, WA. With over 10,000 content producers - from the adventure-seeking backpacker, to the non-traveling local expert - over 30k active monthly members, and over 1MM travel experiences read in 2016, JRRNY has become a foundational place to share and discover experiences in the travel and outdoor industries.</p>
-			<a class="load_more_jobs button" href="http://jrrny.com/"target="_blank">VIEW MORE</a>
+			<a class="button" href="http://jrrny.com/"target="_blank">VIEW MORE</a>
 		</div>
 	</div>
 </div>

@@ -47,6 +47,7 @@ header #navigation{float:right}
 .how-it-work-wrap{text-align:center;color:#fff;padding:150px 0}
 .how-it-work-wrap.introtext{width: 80%; display: inline-block;}
 .how-it-work-content{max-width:640px;margin:0 auto; text-align: left;}
+.how-it-work-content a.button{  background-color: #282828;   border-radius: 8px;  font-size: 16px;  padding: 4px 15px; box-shadow: none}
 .introtext h2{font-size: 46px;color: #fff;letter-spacing: -1px;margin-bottom:20px}
 .how-it-work-content p{margin-bottom:35px;text-transform:uppercase;font-size:14px}
 .jrrny{font-size: 23px;color:#fff;}

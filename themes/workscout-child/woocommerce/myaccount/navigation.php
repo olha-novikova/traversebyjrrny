@@ -101,6 +101,13 @@ do_action( 'woocommerce_before_account_navigation' );
             <li class="woocommerce-MyAccount-navigation-link">
                 <a href="<?php echo esc_url( wc_get_account_endpoint_url( $endpoint ) ); ?>"><?php echo esc_html( ucwords($label) ); ?></a>
             </li>
+            <?php
+            if ( $endpoint == 'edit-account') { ?>
+                <li class="woocommerce-MyAccount-navigation-link">
+                    <a href="<?php echo esc_url( wc_get_account_endpoint_url( $endpoint ) ).'?password=change'; ?>"><?php echo esc_html( ucwords('Change Password') ); ?></a>
+                </li>
+            <?php } ?>
+
         <?php } ?>
     <?php endforeach;?>
 	</ul>

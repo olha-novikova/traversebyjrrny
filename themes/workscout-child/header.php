@@ -172,9 +172,9 @@ if ( is_user_logged_in() ) {
 
                     $.magnificPopup.open({
                         items: {
-                            src: '<div id="singup-dialog" class="small-dialog zoom-anim-dialog apply-popup">'+
+                            src:'<div id="singup-dialog" class="small-dialog zoom-anim-dialog apply-popup">'+
                                 '<div class="small-dialog-headline"><h2><?php esc_html_e("Success!","workscout"); ?></h2></div>'+
-                                '<div class="small-dialog-content"><p class="margin-reset"><?php esc_html_e("You are registered and logged in. Now, let’s get a little more information. Click the X on this dialog box to get started. ","workscout"); ?></p></div>'+
+                                '<div class="small-dialog-content"><p>You are registered and logged in. Now, let’s get a little more information. Click Next to get started </p><p style="text-align: right;"><a class="button" href="<?php echo get_home_url()?>/my-account/edit-account">Next</a></p></div>'+
                                 '</div>', // can be a HTML string, jQuery object, or CSS selector
                             type: 'inline'
                         }

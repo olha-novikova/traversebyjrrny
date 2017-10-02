@@ -66,13 +66,13 @@ do_action( 'woocommerce_before_account_navigation' );
             );
         endif;
 
-
         ?>
 
         <?php foreach ( wc_get_account_menu_items() as $endpoint => $label ) : ?>
             <?php if($label !='Orders' && $label !='Downloads' && $label !='Addresses' && $label != 'Dashboard'){?>
                 <?php
-                if ( $label =='Logout' ){
+
+                if ( $endpoint =='customer-logout' ){
 
                     if ( in_array( 'candidate', (array) $user->roles ) ) :
                         $pagename = 'my-balance';
@@ -106,6 +106,13 @@ do_action( 'woocommerce_before_account_navigation' );
                 <li class="woocommerce-MyAccount-navigation-link">
                         <a href="<?php echo esc_url( wc_get_account_endpoint_url( $endpoint ) ); ?>"><?php echo esc_html( ucwords($label) ); ?></a>
                 </li>
+
+                <?php
+                    if ( $endpoint == 'edit-account') { ?>
+                        <li class="woocommerce-MyAccount-navigation-link">
+                            <a href="<?php echo esc_url( wc_get_account_endpoint_url( $endpoint ) ).'?password=change'; ?>"><?php echo esc_html( ucwords('Change Password') ); ?></a>
+                        </li>
+                <?php } ?>
             <?php } ?>
         <?php endforeach;?>
 
@@ -114,7 +121,7 @@ do_action( 'woocommerce_before_account_navigation' );
 
 <?php do_action( 'woocommerce_after_account_navigation' ); ?>
 <div class="woocommerce-MyAccount-content">
-<h2 class="my-acc-h2"> <strong>My Portfolio(s)</strong></h2><?php
+<h2 class="my-acc-h2">My Portfolio(s)</h2><?php
 $submission_limit           = get_option( 'resume_manager_submission_limit' );
 $submit_resume_form_page_id = get_option( 'resume_manager_submit_resume_form_page_id' );
 ?>
